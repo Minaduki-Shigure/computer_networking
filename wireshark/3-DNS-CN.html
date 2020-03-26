@@ -29,7 +29,7 @@
 Broadcom BCM4352 Wireless Network Adapter<br>
 Wireshark Version 3.2.2 (v3.2.2-0-ga3efece3d640)<br>
 Safari Version 12.1.1 (14607.2.6.1.1)</p>
-<h2 id="%e5%ae%9e%e9%aa%8c%e5%86%85%e5%ae%b9%e8%bf%99%e6%98%af%e4%bb%80%e4%b9%88%e6%97%8b%e5%be%8b">实验内容：这是什么旋律？</h2>
+<h2 id="%e5%ae%9e%e9%aa%8c%e5%86%85%e5%ae%b9%e6%b8%90%e5%85%a5%e4%bd%b3%e5%a2%83">实验内容：渐入佳境</h2>
 <ol>
 <li>nslookup命令预热：<br>
 按照指导书上的前两条指令输入，看到的结果如下段所示：<br>
@@ -104,7 +104,7 @@ Wireshark返回的抓包结果保存为Wireshark-DNS-Capture1.pdf。</li>
 </ol>
 <p><strong>找到DNS查询和响应消息。它们是否通过UDP或TCP发送？</strong><br>
 找到的DNS查询和相应信息如下图所示，可以看见，DNS通过UDP协议实现。<br>
-<img src="file:////Users/minaduki/Desktop/computer_networking/wireshark/pic/3-1.png" alt="DNS of in-flame-team">
+<img src="file:///c:\Users\Player\computer_networking\wireshark\pic\3-1.png" alt="DNS of in-flame-team">
 <strong>DNS查询消息的目标端口是什么？ DNS响应消息的源端口是什么？</strong><br>
 同样根据Wireshark显示的条目可知，DNS查询的目标端口和相应的原端口都是53。<br>
 <strong>DNS查询消息发送到哪个IP地址？使用ipconfig来确定本地DNS服务器的IP地址。这两个IP地址是否相同？</strong><br>
@@ -117,7 +117,7 @@ DNS查询信息有两条（针对目标网站），分别是AAAA记录和A记录
 IP完全对应，同时与设置的A记录内容相符。<br>
 <strong>这个网页包含一些图片。在获取每个图片前，您的主机是否都发出了新的DNS查询？</strong><br>
 我提供的目标网站基于WordPress搭建，因此有部分图标资源来自WordPress网站，本地计算机为cn.wordpress.org与数个其他的WordPress站点发出了新的DNS查询并收到了返回的结果。比如，对cn.wordpress.org的查询返回了一项CNAME记录与CNAME记录内容对应的A记录。<br>
-<img src="file:////Users/minaduki/Desktop/computer_networking/wireshark/pic/3-2.png" alt="DNS of WordPress"></p>
+<img src="file:///c:\Users\Player\computer_networking\wireshark\pic\3-2.png" alt="DNS of WordPress"></p>
 <ol start="4">
 <li>
 <p>Wireshark nslookup 命令1<br>
@@ -132,7 +132,7 @@ Wireshark返回的抓包结果保存为Wireshark-DNS-Capture2.pdf。<br>
 提供了两个CNAME和一个A记录，如下图所示，各个条目的作用推测如下：
 www.mit.edu的CNAME条目对应的www.mit.edu.edgekey.net为MIT边缘网络的管理节点对应的主页的网站服务器的记录，而www.mit.edu.edgekey.net的CNAME内容e9566.dscb.akamaiedge.net则是网站的CDN提供商提供的对应于网站内容和负责本地计算机对应地区内容分发的CDN服务器地址，其A记录则为它的IPv4地址。<br>
 <strong>提供屏幕截图。</strong><br>
-<img src="file:////Users/minaduki/Desktop/computer_networking/wireshark/pic/3-3.png" alt="nslookup capture 1"></p>
+<img src="file:///c:\Users\Player\computer_networking\wireshark\pic\3-3.png" alt="nslookup capture 1"></p>
 </li>
 <li>
 <p>Wireshark nslookup 命令2<br>
@@ -144,7 +144,7 @@ Wireshark返回的抓包结果保存为Wireshark-DNS-Capture3.pdf。<br>
 <strong>检查DNS响应消息。响应消息提供的MIT域名服务器是什么？此响应消息还提供了MIT域名服务器的IP地址吗？</strong><br>
 提供了数个NS的答案，根据域名分析应该是对应了MIT网站使用的Akamai CDN在不同区域的Name Server的域名。这些answer与nslookup返回的结果相同。<br>
 <strong>提供屏幕截图。</strong><br>
-<img src="file:////Users/minaduki/Desktop/computer_networking/wireshark/pic/3-4.png" alt="nslookup capture 2"></p>
+<img src="file:///c:\Users\Player\computer_networking\wireshark\pic\3-4.png" alt="nslookup capture 2"></p>
 </li>
 <li>
 <p>Wireshark nslookup 命令3<br>
@@ -157,7 +157,7 @@ Wireshark返回的抓包结果保存为Wireshark-DNS-Capture4.pdf。<br>
 <strong>检查DNS响应消息。提供了多少个&quot;answers&quot;？这些答案包含什么？</strong><br>
 对于f1g1ns1.dnspod.net的查询结果，返回了数个A记录，对应着此DNS服务器的数个可用IP地址，对于www.minaduki.cn的查询结果，返回了一条A记录，与解析记录地址相符。<br>
 <strong>提供屏幕截图。</strong><br>
-<img src="file:////Users/minaduki/Desktop/computer_networking/wireshark/pic/3-5.png" alt="nslookup capture 3"></p>
+<img src="file:///c:\Users\Player\computer_networking\wireshark\pic\3-5.png" alt="nslookup capture 3"></p>
 </li>
 </ol>
 <h2 id="%e5%b0%8f%e7%bb%93">小结</h2>
