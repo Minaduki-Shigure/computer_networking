@@ -1,6 +1,6 @@
 # Wireshark Lab: Getting Started
 
-Copyright (c) 2019 Minaduki Shigure.  
+Copyright (c) 2020 Minaduki Shigure.  
 南京大学 电子科学与工程学院 吴康正 171180571
 
 ## Lab Environmnet
