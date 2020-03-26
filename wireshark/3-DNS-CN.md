@@ -10,7 +10,7 @@ Broadcom BCM4352 Wireless Network Adapter
 Wireshark Version 3.2.2 (v3.2.2-0-ga3efece3d640)  
 Safari Version 12.1.1 (14607.2.6.1.1)
 
-## 实验内容：这是什么旋律？
+## 实验内容：渐入佳境
 
 1. nslookup命令预热：  
 按照指导书上的前两条指令输入，看到的结果如下段所示：  
