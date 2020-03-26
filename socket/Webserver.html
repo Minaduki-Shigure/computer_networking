@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Socket Programming: Webserver</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+        <link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+    </head>
+    <body class="vscode-light">
+        <h1 id="socket-programming-webserver">Socket Programming: Webserver</h1>
+<p>Copyright (c) 2020 Minaduki Shigure.<br>
+南京大学 电子科学与工程学院 吴康正 171180571</p>
+<h2 id="%e5%ae%9e%e9%aa%8c%e7%8e%af%e5%a2%83">实验环境</h2>
+<p>macOS “Mojave” 10.14.5<br>
+Broadcom BCM4352 Wireless Network Adapter<br>
+Wireshark Version 3.2.2 (v3.2.2-0-ga3efece3d640)<br>
+Safari Version 12.1.1 (14607.2.6.1.1)</p>
+<h2 id="%e5%ae%9e%e9%aa%8c%e7%bb%93%e6%9e%9c">实验结果</h2>
+<ol>
+<li>使用socket实现了一个HTTP服务器，可以识别浏览器的HTTP GET请求，并且返回对应的网页页面，如果没有对应的页面，则会返回404 Not Found，并且给出一个对应的提示页面。<br>
+<img src="file:////Users/minaduki/Desktop/computer_networking/socket/pic/1-1.png" alt="200 OK"><br>
+<img src="file:////Users/minaduki/Desktop/computer_networking/socket/pic/1-2.png" alt="404 Not Found"></li>
+<li>由于前面已经使用了socket编程，对于拓展要求，选用了Python自带的HTTP库，实现了HTTP访问，并下载对应的页面，以client为前缀保存。</li>
+</ol>
+<pre><code class="language-plain"><code><div>Minadukis-MacBook-Pro:1_WebServer minaduki$ python3 client.py 127.0.0.1 10086 hello.html
+200 OK
+Connection: close
+Content-Type: text/html
+Content-Length: 970
+</div></code></code></pre>
+<p>同时保存了client-hello.html文件</p>
+<h2 id="%e5%b0%8f%e7%bb%93">小结</h2>
+<p>您也可以访问http://schwi-dola.com:10086/hello.html查看实验成果</p>
+
+    </body>
+    </html>

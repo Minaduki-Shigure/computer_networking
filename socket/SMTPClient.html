@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Socket Programming: SMTP Server</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+        <link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+    </head>
+    <body class="vscode-light">
+        <h1 id="socket-programming-smtp-server">Socket Programming: SMTP Server</h1>
+<p>Copyright (c) 2020 Minaduki Shigure.<br>
+南京大学 电子科学与工程学院 吴康正 171180571</p>
+<h2 id="%e5%ae%9e%e9%aa%8c%e7%8e%af%e5%a2%83">实验环境</h2>
+<p>macOS “Mojave” 10.14.5<br>
+Broadcom BCM4352 Wireless Network Adapter<br>
+Wireshark Version 3.2.2 (v3.2.2-0-ga3efece3d640)<br>
+Safari Version 12.1.1 (14607.2.6.1.1)</p>
+<h2 id="%e5%ae%9e%e9%aa%8c%e7%bb%93%e6%9e%9c">实验结果</h2>
+<p>实现了使用SMTP协议的电子邮件发送：</p>
+<pre><code><code><div>Minadukis-MacBook-Pro:3_SMTPClient minaduki$ python3 client.py 
+220 smtp.qq.com Esmtp QQ Mail Server
+
+250 smtp.qq.com
+
+334 VXNlcm5hbWU6
+
+334 UGFzc3dvcmQ6
+
+235 Authentication successful
+
+250 Ok
+
+250 Ok
+
+354 End data with &lt;CR&gt;&lt;LF&gt;.&lt;CR&gt;&lt;LF&gt;
+
+250 Ok: queued as 
+
+221 Bye
+
+</div></code></code></pre>
+<p><img src="file:////Users/minaduki/Desktop/computer_networking/socket/pic/3-1.png" alt="Mail received"></p>
+<h2 id="%e5%b0%8f%e7%bb%93">小结</h2>
+<p>本次实验很可惜没有完成拓展内容，对于SSL/TLS加密，QQ邮箱只支持SSL，但是我在网上找到的参考资料都是使用TLS的，而我在使用telnet时也没能成功，因此只能放弃。<br>
+对于多媒体内容，似乎我对content-type的理解有误，图片发送出去显示的仍旧是base64编码，也许可以尝试发送一个html格式的邮件？</p>
+
+    </body>
+    </html>

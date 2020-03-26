@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Wireshark Lab: DNS</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+        <link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+    </head>
+    <body class="vscode-light">
+        <h1 id="wireshark-lab-dns">Wireshark Lab: DNS</h1>
+<p>Copyright (c) 2020 Minaduki Shigure.<br>
+南京大学 电子科学与工程学院 吴康正 171180571</p>
+<h2 id="%e5%ae%9e%e9%aa%8c%e7%8e%af%e5%a2%83">实验环境</h2>
+<p>macOS “Mojave” 10.14.5<br>
+Broadcom BCM4352 Wireless Network Adapter<br>
+Wireshark Version 3.2.2 (v3.2.2-0-ga3efece3d640)<br>
+Safari Version 12.1.1 (14607.2.6.1.1)</p>
+<h2 id="%e5%ae%9e%e9%aa%8c%e5%86%85%e5%ae%b9%e8%bf%99%e6%98%af%e4%bb%80%e4%b9%88%e6%97%8b%e5%be%8b">实验内容：这是什么旋律？</h2>
+<ol>
+<li>nslookup命令预热：<br>
+按照指导书上的前两条指令输入，看到的结果如下段所示：<br>
+可以看出，本机的DNS服务器为家里的路由器，同时根据返回的CNAME和NS记录，似乎目标网站现在使用了Akamai的CDN服务，而指导书中提供的DNS服务器已经不再使用了，因此第三句命令会提示连接不到服务器，这里就不再尝试连接，在完成题目时，会使用这句命令进行一部分操作，作为弥补。</li>
+</ol>
+<pre><code class="language-plain"><code><div>Minadukis-MacBook-Pro:~ minaduki$ nslookup www.mit.edu
+Server:		192.168.3.1
+Address:	192.168.3.1#53
+
+Non-authoritative answer:
+www.mit.edu	canonical name = www.mit.edu.edgekey.net.
+www.mit.edu.edgekey.net	canonical name = e9566.dscb.akamaiedge.net.
+Name:	e9566.dscb.akamaiedge.net
+Address: 184.30.185.198
+
+Minadukis-MacBook-Pro:~ minaduki$ nslookup -type=NS mit.edu
+Server:		192.168.3.1
+Address:	192.168.3.1#53
+
+Non-authoritative answer:
+mit.edu	nameserver = ns1-173.akam.net.
+mit.edu	nameserver = use5.akam.net.
+mit.edu	nameserver = asia1.akam.net.
+mit.edu	nameserver = asia2.akam.net.
+mit.edu	nameserver = use2.akam.net.
+mit.edu	nameserver = ns1-37.akam.net.
+mit.edu	nameserver = usw2.akam.net.
+mit.edu	nameserver = eur5.akam.net.
+
+Authoritative answers can be found from:
+</div></code></code></pre>
+<ol start="2">
+<li>nslookup：</li>
+</ol>
+<p><strong>运行nslookup以获取一个亚洲的Web服务器的IP地址。该服务器的IP地址是什么？</strong><br>
+由于之前没有使用过指定DNS服务器的方式进行查询，这里在查询时，指定了DNS服务器。<br>
+返回的结果与解析记录地址相符。</p>
+<pre><code class="language-plain"><code><div>Minadukis-MacBook-Pro:~ minaduki$ nslookup www.minaduki.cn f1g1ns1.dnspod.net
+Server:		f1g1ns1.dnspod.net
+Address:	14.215.150.17#53
+
+Name:	www.minaduki.cn
+Address: 101.132.47.121
+</div></code></code></pre>
+<p><strong>运行nslookup来确定一个欧洲的大学的权威DNS服务器。</strong><br>
+入乡随俗，还是用自己学校来举例子吧：</p>
+<pre><code><code><div>Minadukis-MacBook-Pro:~ minaduki$ nslookup -type=NS nju.edu.cn
+Server:		192.168.3.1
+Address:	192.168.3.1#53
+
+Non-authoritative answer:
+nju.edu.cn	nameserver = dns.nju.edu.cn.
+nju.edu.cn	nameserver = ns.nju.edu.cn.
+
+Authoritative answers can be found from:
+</div></code></code></pre>
+<p><em>这里和之前一样，显示答案是“非权威的”，这是因为这些记录并非实时获取的，而是来自缓存</em></p>
+<p><strong>运行nslookup，使用问题2中一个已获得的DNS服务器，来查询Yahoo!邮箱的邮件服务器。它的IP地址是什么？</strong><br>
+同样，Yahoo!的邮件服务几乎国内没有人用了，这里改为查询学生邮箱的邮件服务器。<br>
+<em>学校邮箱由腾讯企业邮箱托管，<a href="http://xn--exmail-vy7ip41axyinn7b.qq.com">服务器为exmail.qq.com</a>。</em></p>
+<pre><code class="language-plain"><code><div>Minadukis-MacBook-Pro:~ minaduki$ nslookup mail.smail.nju.edu.cn dns.nju.edu.cn
+Server:		dns.nju.edu.cn
+Address:	202.119.32.6#53
+
+mail.smail.nju.edu.cn	canonical name = ssl.exmail.qq.com.
+</div></code></code></pre>
+<p>返回了一个CNAME记录指向腾讯企业邮箱的ssl界面。</p>
+<ol start="3">
+<li>Wireshark 网页访问DNS<br>
+由于目标网站响应极其缓慢，实验中换用“<a href="http://www.in-flame-team.com">www.in-flame-team.com</a>“作为目标网站。<br>
+Wireshark返回的抓包结果保存为Wireshark-DNS-Capture1.pdf。</li>
+</ol>
+<p><strong>找到DNS查询和响应消息。它们是否通过UDP或TCP发送？</strong><br>
+找到的DNS查询和相应信息如下图所示，可以看见，DNS通过UDP协议实现。<br>
+<img src="file:////Users/minaduki/Desktop/computer_networking/wireshark/pic/3-1.png" alt="DNS of in-flame-team">
+<strong>DNS查询消息的目标端口是什么？ DNS响应消息的源端口是什么？</strong><br>
+同样根据Wireshark显示的条目可知，DNS查询的目标端口和相应的原端口都是53。<br>
+<strong>DNS查询消息发送到哪个IP地址？使用ipconfig来确定本地DNS服务器的IP地址。这两个IP地址是否相同？</strong><br>
+DNS查询的信息发送到了<code>fe80::29a:cdff:fe8a:f39c</code>，即本地路由器，与ifconfig的查询结果之一相同（还有一个DNS服务器是IPv4的192.168.3.1）。<br>
+<strong>检查DNS查询消息。DNS查询是什么&quot;Type&quot;的？查询消息是否包含任何&quot;answers&quot;？</strong><br>
+DNS查询信息有两条（针对目标网站），分别是AAAA记录和A记录，查询消息不包括answers。<br>
+<strong>检查DNS响应消息。提供了多少个&quot;answers&quot;？这些答案具体包含什么？</strong><br>
+对于此目标网站，只提供了一个Answer，即目标网站的IPv4地址，由于我没有设置该网站AAAA记录，所以AAAA查询返回的answer是空的。<br>
+<strong>考虑从您主机发送的后续TCP SYN数据包。 SYN数据包的目的IP地址是否与DNS响应消息中提供的任何IP地址相对应？</strong><br>
+IP完全对应，同时与设置的A记录内容相符。<br>
+<strong>这个网页包含一些图片。在获取每个图片前，您的主机是否都发出了新的DNS查询？</strong><br>
+我提供的目标网站基于WordPress搭建，因此有部分图标资源来自WordPress网站，本地计算机为cn.wordpress.org与数个其他的WordPress站点发出了新的DNS查询并收到了返回的结果。比如，对cn.wordpress.org的查询返回了一项CNAME记录与CNAME记录内容对应的A记录。<br>
+<img src="file:////Users/minaduki/Desktop/computer_networking/wireshark/pic/3-2.png" alt="DNS of WordPress"></p>
+<ol start="4">
+<li>
+<p>Wireshark nslookup 命令1<br>
+Wireshark返回的抓包结果保存为Wireshark-DNS-Capture2.pdf。<br>
+<strong>DNS查询消息的目标端口是什么？ DNS响应消息的源端口是什么？</strong><br>
+端口均为53。<br>
+<strong>DNS查询消息的目标IP地址是什么？这是你的默认本地DNS服务器的IP地址吗？</strong><br>
+目标IP为192.168.3.1，即本地路由器，与ifconfig的查询结果之一相同。<br>
+<strong>检查DNS查询消息。DNS查询是什么&quot;Type&quot;的？查询消息是否包含任何&quot;answers&quot;？</strong><br>
+仅发送了一条A记录的查询，查询消息不包含answers。<br>
+<strong>检查DNS响应消息。提供了多少个&quot;answers&quot;？这些答案包含什么？</strong><br>
+提供了两个CNAME和一个A记录，如下图所示，各个条目的作用推测如下：
+www.mit.edu的CNAME条目对应的www.mit.edu.edgekey.net为MIT边缘网络的管理节点对应的主页的网站服务器的记录，而www.mit.edu.edgekey.net的CNAME内容e9566.dscb.akamaiedge.net则是网站的CDN提供商提供的对应于网站内容和负责本地计算机对应地区内容分发的CDN服务器地址，其A记录则为它的IPv4地址。<br>
+<strong>提供屏幕截图。</strong><br>
+<img src="file:////Users/minaduki/Desktop/computer_networking/wireshark/pic/3-3.png" alt="nslookup capture 1"></p>
+</li>
+<li>
+<p>Wireshark nslookup 命令2<br>
+Wireshark返回的抓包结果保存为Wireshark-DNS-Capture3.pdf。<br>
+<strong>DNS查询消息的目标IP地址是什么？这是你的默认本地DNS服务器的IP地址吗？</strong><br>
+目标IP为192.168.3.1，即本地路由器，与ifconfig的查询结果之一相同。<br>
+<strong>检查DNS查询消息。DNS查询是什么&quot;Type&quot;的？查询消息是否包含任何&quot;answers&quot;？</strong><br>
+仅发送了一条NS记录的查询，查询消息不包含answers。<br>
+<strong>检查DNS响应消息。响应消息提供的MIT域名服务器是什么？此响应消息还提供了MIT域名服务器的IP地址吗？</strong><br>
+提供了数个NS的答案，根据域名分析应该是对应了MIT网站使用的Akamai CDN在不同区域的Name Server的域名。这些answer与nslookup返回的结果相同。<br>
+<strong>提供屏幕截图。</strong><br>
+<img src="file:////Users/minaduki/Desktop/computer_networking/wireshark/pic/3-4.png" alt="nslookup capture 2"></p>
+</li>
+<li>
+<p>Wireshark nslookup 命令3<br>
+由于指导书中提供的DNS服务器已经不再使用了，因此命令会提示连接不到服务器。这里改为询问f1g1ns1.dnspod.net服务器查询www.minaduki.cn对应的记录。<br>
+Wireshark返回的抓包结果保存为Wireshark-DNS-Capture4.pdf。<br>
+<strong>DNS查询消息的目标IP地址是什么？这是你的默认本地DNS服务器的IP地址吗？</strong><br>
+查询f1g1ns1.dnspod.net时目标IP为192.168.3.1，即本地路由器，与ifconfig的查询结果之一相同。查询www.minaduki.cn时目标IP为14.215.150.17，即f1g1ns1.dnspod.net对应的IP地址之一。<br>
+<strong>检查DNS查询消息。DNS查询是什么&quot;Type&quot;的？查询消息是否包含任何&quot;answers&quot;？</strong><br>
+发送了了一条AAAA记录和两条A记录的查询，查询消息不包含answers。<br>
+<strong>检查DNS响应消息。提供了多少个&quot;answers&quot;？这些答案包含什么？</strong><br>
+对于f1g1ns1.dnspod.net的查询结果，返回了数个A记录，对应着此DNS服务器的数个可用IP地址，对于www.minaduki.cn的查询结果，返回了一条A记录，与解析记录地址相符。<br>
+<strong>提供屏幕截图。</strong><br>
+<img src="file:////Users/minaduki/Desktop/computer_networking/wireshark/pic/3-5.png" alt="nslookup capture 3"></p>
+</li>
+</ol>
+<h2 id="%e5%b0%8f%e7%bb%93">小结</h2>
+<p>为什么有的时候DNS服务器的地址为IPv4，有的时候为IPv6？<br>
+我认为这应该是由于浏览器会默认先以IPv6的方式访问网站（而现在大多数的浏览器的确如此），因此在DNS服务器中也会倾向于更加先进的IPv6，同时可以看见，浏览器在访问的时候也优先查询了IPv6地址对应的AAAA记录。而对于nslookup工具，其默认只支持IPv4，要通过额外的参数才会开启IPv6支持。而其对于DNS服务器的域名解析有可能不是通过自身实现而是调用的外部工具，因此只有在查询f1g1ns1.dnspod.net对应的记录时才连接了IPv6。</p>
+
+    </body>
+    </html>

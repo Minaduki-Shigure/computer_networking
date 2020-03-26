@@ -1,3 +1,4 @@
+# coding=utf-8
 #import socket module
 from socket import *
 import sys
