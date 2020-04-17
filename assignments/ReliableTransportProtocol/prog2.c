@@ -75,16 +75,6 @@ sender_class sender_B;
 receiver_class receiver_A;
 receiver_class receiver_B;
 
-void sender_init(sender_class* sender)
-{
-    sender->base = 1;
-    sender->next_seq = 1;
-    // sender->message_num = 0;
-    sender->window_size = DEFAULT_WINDOW_SIZE;
-    sender->buffer_ptr = 1;
-    sender->estimatedRTT = 20;
-}
-
 int cal_checksum(struct pkt* packet)
 {
     int checksum = 0;
@@ -100,6 +90,16 @@ int cal_checksum(struct pkt* packet)
     }
     checksum = 0xffff - checksum;
     return checksum;
+}
+
+void sender_init(sender_class* sender)
+{
+    sender->base = 1;
+    sender->next_seq = 1;
+    // sender->message_num = 0;
+    sender->window_size = DEFAULT_WINDOW_SIZE;
+    sender->buffer_ptr = 1;
+    sender->estimatedRTT = 20;
 }
 
 void receiver_init(receiver_class* receiver)
