@@ -160,7 +160,7 @@ void sender_output(int AorB, sender_class* sender, struct msg message)
     }
     else
     {
-        hightlight_str = highlight_str_B;
+        highlight_str = highlight_str_B;
     }
     if (sender->buffer_ptr - sender->base >= BUFFER_SIZE)
     {
@@ -190,7 +190,7 @@ void sender_input(int AorB, sender_class* sender, struct pkt packet)
     }
     else
     {
-        hightlight_str = highlight_str_B;
+        highlight_str = highlight_str_B;
     }
     if (cal_checksum(&packet) != packet.checksum)
     {
@@ -232,7 +232,7 @@ void sender_timerinterrupt(int AorB, sender_class* sender)
     }
     else
     {
-        hightlight_str = highlight_str_B;
+        highlight_str = highlight_str_B;
     }
     int i = 0;
     for (i = sender->base; i < sender->next_seq; ++i)
@@ -258,7 +258,7 @@ void receiver_input(int AorB, receiver_class* receiver, struct pkt packet)
     }
     else
     {
-        hightlight_str = highlight_str_B;
+        highlight_str = highlight_str_B;
     }
     if (cal_checksum(&packet) != packet.checksum)
     {
