@@ -199,7 +199,7 @@ void A_input(struct pkt packet)
     }
     else
     {
-        starttimer(0, sender_A.estimatedRTT);
+        // starttimer(0, sender_A.estimatedRTT);
     }
 }
 
