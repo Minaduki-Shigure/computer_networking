@@ -282,7 +282,7 @@ void receiver_input(int AorB, receiver_class* receiver, struct pkt packet)
     printf("Received packet SEQ = %d. Sending ACK = %d.\n", packet.seqnum, packet.seqnum);
     strcat(highlight_str, " Content:");
     hightlight_printf(highlight_str);
-    printf("%s", packet.payload);
+    printf("%s\n", packet.payload);
     tolayer5(AorB, packet.payload);
     receiver->ack_buffer.acknum = packet.seqnum;
     receiver->ack_buffer.checksum = cal_checksum(&(receiver->ack_buffer));
