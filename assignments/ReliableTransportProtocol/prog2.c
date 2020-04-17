@@ -132,39 +132,155 @@ struct pkt* gen_packet(int seq, const char data[20])
     return new_packet;
 }
 
-void window_send(void)
+void window_send(int AorB, sender_class* sender)
 {
-    while ((sender_A.next_seq < sender_A.buffer_ptr) && (sender_A.next_seq < sender_A.base + sender_A.window_size))
+    while ((sender->next_seq < sender->buffer_ptr) && (sender->next_seq < sender->base + sender->window_size))
     {
-        struct pkt* send = sender_A.buffer + (sender_A.next_seq % BUFFER_SIZE);
+        struct pkt* send = sender->buffer + (sender->next_seq % BUFFER_SIZE);
         hightlight_printf("window_send:");
         printf("Sending SEQ = %d.\n", send->seqnum);
-        tolayer3(0, *send);
-        if (sender_A.base == sender_A.next_seq)
+        tolayer3(AorB, *send);
+        if (sender->base == sender->next_seq)
         {
-            starttimer(0, sender_A.estimatedRTT);
+            starttimer(AorB, sender->estimatedRTT);
         }
-        ++sender_A.next_seq;
+        ++(sender->next_seq);
     }
 }
 
 /* called from layer 5, passed the data to be sent to other side */
-void A_output(struct msg message)
+void sender_output(int AorB, sender_class* sender, struct msg message)
 {
-    if (sender_A.buffer_ptr - sender_A.base >= BUFFER_SIZE)
+    char highlight_str[16];
+    if (!AorB)
     {
-        hightlight_printf("A_output:");
+        highlight_str = "A_output:";
+    }
+    else
+    {
+        hightlight_str = "B_output:";
+    }
+    if (sender->buffer_ptr - sender->.base >= BUFFER_SIZE)
+    {
+        hightlight_printf(highlight_str);
         printf("Buffer overflow. Message dropped.\n");
         return;
     }
-    struct pkt* new_packet = sender_A.buffer + (sender_A.buffer_ptr % BUFFER_SIZE);
-    new_packet->seqnum = sender_A.buffer_ptr;
+    struct pkt* new_packet = sender->buffer + (sender->buffer_ptr % BUFFER_SIZE);
+    new_packet->seqnum = sender->buffer_ptr;
     memcpy(new_packet->payload, message.data, 20);
     new_packet->checksum = cal_checksum(new_packet);
-    hightlight_printf("A_output:");
+    hightlight_printf(highlight_str);
     printf("Added message. Allocated SEQ = %d.\n", new_packet->seqnum);
-    ++sender_A.buffer_ptr;
-    window_send();
+    ++(sender->buffer_ptr);
+    window_send(AorB, sender);
+}
+
+/* called from layer 3, when a packet arrives for layer 4 */
+void sender_input(int AorB, sender_class* sender, struct pkt packet)
+{
+    char highlight_str[16];
+    if (!AorB)
+    {
+        highlight_str = "A_output:";
+    }
+    else
+    {
+        hightlight_str = "B_output:";
+    }
+    if (cal_checksum(&packet) != packet.checksum)
+    {
+        hightlight_printf(highlight_str);
+        printf("Packet corrupted. Dropping packet.\n");
+        return;
+    }
+    if (packet.acknum < sender->base)
+    {
+        hightlight_printf(highlight_str);
+        printf("Received duplicate ACK. Packet ignored.\n");
+        return;
+    }
+    hightlight_printf(highlight_str);
+    printf("Got ACK = %d.\n", packet.acknum);
+    sender->base = packet.acknum + 1;
+    
+    if (sender->base == sender->next_seq)
+    {
+        stoptimer(AorB);
+        window_send(AorB, sender);
+    }
+    else
+    {
+        // The timer will now be started by window_send()
+        // starttimer(AorB, sender->estimatedRTT);
+    }
+}
+
+/* called when sender's timer goes off */
+void sender_timerinterrupt(int AorB, sender_class* sender)
+{
+    char highlight_str[16];
+    if (!AorB)
+    {
+        highlight_str = "A_timerinterrupt:";
+    }
+    else
+    {
+        hightlight_str = "B_timerinterrupt:";
+    }
+    int i = 0;
+    for (i = sender->base; i < sender->next_seq; ++i)
+    {
+        struct pkt* resend = sender->buffer + (i % BUFFER_SIZE);
+        hightlight_printf(highlight_str);
+        printf("Timeout for SEQ = %d. Resending.\n", resend->seqnum);
+        tolayer3(AorB, *resend);
+    }
+    sender->estimatedRTT = sender->estimatedRTT + 10;
+    starttimer(AorB, sender->estimatedRTT);
+}
+
+/* called from layer 3, when a packet arrives for layer 4 at receiver*/
+void receiver_input(int AorB, receiver_class* receiver, struct pkt packet)
+{
+    char highlight_str[16];
+    if (!AorB)
+    {
+        highlight_str = "A_input:";
+    }
+    else
+    {
+        hightlight_str = "B_input:";
+    }
+    if (cal_checksum(&packet) != packet.checksum)
+    {
+        hightlight_printf(highlight_str);
+        printf("Packet corrupted. Sending last ACK = %d.\n", receiver->ack_buffer.acknum);
+        tolayer3(AorB, receiver->ack_buffer);
+        return;
+    }
+    if (packet.seqnum != receiver->expecting_seq)
+    {
+        hightlight_printf(highlight_str);
+        printf("Unexpected SEQ = %d received. Sending last ACK = %d.\n", packet.seqnum, receiver->ack_buffer.acknum);
+        tolayer3(AorB, receiver->ack_buffer);
+        return;
+    }
+    hightlight_printf(highlight_str);
+    printf("Received packet SEQ = %d. Sending ACK = %d.\n", packet.seqnum, packet.seqnum);
+    strcat(highlight_str, "Content:");
+    hightlight_printf(highlight_str);
+    printf("%s", packet.payload);
+    tolayer5(AorB, packet.payload);
+    receiver->ack_buffer.acknum = packet.seqnum;
+    receiver->ack_buffer.checksum = cal_checksum(&(receiver->ack_buffer));
+    ++(receiver->expecting_seq);
+    tolayer3(AorB, receiver->ack_buffer);
+}
+
+void A_output(struct msg message)
+{
+    sender_output(0, &sender_A, message);
 }
 
 /* need be completed only for extra credit */
@@ -173,50 +289,15 @@ void B_output(struct msg message)
     printf("  B_output: uni-directional. ignore.\n");
 }
 
-/* called from layer 3, when a packet arrives for layer 4 */
 void A_input(struct pkt packet)
 {
-    if (cal_checksum(&packet) != packet.checksum)
-    {
-        hightlight_printf("A_input:");
-        printf("Packet corrupted. Dropping packet.\n");
-        return;
-    }
-    if (packet.acknum < sender_A.base)
-    {
-        hightlight_printf("A_input:");
-        printf("Received duplicate ACK. Packet ignored.\n");
-        return;
-    }
-    hightlight_printf("A_input:");
-    printf("Got ACK = %d.\n", packet.acknum);
-    sender_A.base = packet.acknum + 1;
-    
-    if (sender_A.base == sender_A.next_seq)
-    {
-        stoptimer(0);
-        window_send();
-    }
-    else
-    {
-        // The timer will now be started by window_send()
-        // starttimer(0, sender_A.estimatedRTT);
-    }
+    sender_input(0, &sender_A, packet);
 }
 
 /* called when A's timer goes off */
 void A_timerinterrupt(void)
 {
-    int i = 0;
-    for (i = sender_A.base; i < sender_A.next_seq; ++i)
-    {
-        struct pkt* resend = sender_A.buffer + (i % BUFFER_SIZE);
-        hightlight_printf("A_timerinterrupt:");
-        printf("Timeout for SEQ = %d. Resending.\n", resend->seqnum);
-        tolayer3(0, *resend);
-    }
-    sender_A.estimatedRTT = sender_A.estimatedRTT + 10;
-    starttimer(0, sender_A.estimatedRTT);
+    sender_timerinterrupt(0, &sender_A);
 }
 
 /* the following routine will be called once (only) before any other */
@@ -236,29 +317,7 @@ void send_ack(int AorB, int ack)
 /* called from layer 3, when a packet arrives for layer 4 at B*/
 void B_input(struct pkt packet)
 {
-    if (cal_checksum(&packet) != packet.checksum)
-    {
-        hightlight_printf("B_input:");
-        printf("Packet corrupted. Sending last ACK = %d.\n", receiver_B.ack_buffer.acknum);
-        tolayer3(1, receiver_B.ack_buffer);
-        return;
-    }
-    if (packet.seqnum != receiver_B.expecting_seq)
-    {
-        hightlight_printf("B_input:");
-        printf("Unexpected SEQ = %d received. Sending last ACK = %d.\n", packet.seqnum, receiver_B.ack_buffer.acknum);
-        tolayer3(1, receiver_B.ack_buffer);
-        return;
-    }
-    hightlight_printf("B_input:");
-    printf("Received packet SEQ = %d. Sending ACK = %d.\n", packet.seqnum, packet.seqnum);
-    hightlight_printf("B_input_content:");
-    printf("%s", packet.payload);
-    tolayer5(1, packet.payload);
-    receiver_B.ack_buffer.acknum = packet.seqnum;
-    receiver_B.ack_buffer.checksum = cal_checksum(&(receiver_B.ack_buffer));
-    ++receiver_B.expecting_seq;
-    tolayer3(1, receiver_B.ack_buffer);
+    receiver_input(1, &receiver_B, packet);
 }
 
 /* called when B's timer goes off */

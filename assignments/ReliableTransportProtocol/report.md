@@ -41,6 +41,8 @@ typedef struct {
 
 Checksum的计算采用了标准算法，即每16位相加然后取反。使用cal_checksum()函数可以进行计算，以备发送或校验。
 
+对于
+
 
 ## 小结
 
