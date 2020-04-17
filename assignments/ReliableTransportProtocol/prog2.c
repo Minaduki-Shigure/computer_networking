@@ -196,11 +196,9 @@ void A_input(struct pkt packet)
     {
         stoptimer(0);
         window_send();
+        return;
     }
-    else
-    {
-        starttimer(0, sender_A.estimatedRTT);
-    }
+    starttimer(0, sender_A.estimatedRTT);
 }
 
 /* called when A's timer goes off */
