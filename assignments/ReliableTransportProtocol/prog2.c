@@ -245,7 +245,7 @@ void B_input(struct pkt packet)
     if (packet.seqnum != receiver_B.expecting_seq)
     {
         hightlight_printf("B_input:");
-        printf("Unexpected seqnum received. Sending last ACK = %d.\n", receiver_B.ack_buffer.acknum);
+        printf("Unexpected SEQ = %d received. Sending last ACK = %d.\n", packet.seqnum, receiver_B.ack_buffer.acknum);
         tolayer3(1, receiver_B.ack_buffer);
         return;
     }
