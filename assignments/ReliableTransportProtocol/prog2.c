@@ -137,6 +137,7 @@ void window_send(int AorB, sender_class* sender)
     while ((sender->next_seq < sender->buffer_ptr) && (sender->next_seq < sender->base + sender->window_size))
     {
         struct pkt* send = sender->buffer + (sender->next_seq % BUFFER_SIZE);
+        send->acknum = -1; // acknum = -1 means this is not an ACK packet.
         hightlight_printf("window_send:");
         printf("Sending SEQ = %d.\n", send->seqnum);
         tolayer3(AorB, *send);
@@ -238,6 +239,7 @@ void sender_timerinterrupt(int AorB, sender_class* sender)
     for (i = sender->base; i < sender->next_seq; ++i)
     {
         struct pkt* resend = sender->buffer + (i % BUFFER_SIZE);
+        send->acknum = -1; // acknum = -1 means this is not an ACK packet.
         hightlight_printf(highlight_str);
         printf("Timeout for SEQ = %d. Resending.\n", resend->seqnum);
         tolayer3(AorB, *resend);
@@ -299,7 +301,13 @@ void B_output(struct msg message)
 
 void A_input(struct pkt packet)
 {
-    sender_input(0, &sender_A, packet);
+    if (-1 == packet.acknum)
+    {
+        receiver_input(0, &receiver_A, packet);
+    }
+    {
+        sender_input(0, &sender_A, packet);
+    }
 }
 
 /* called when A's timer goes off */
