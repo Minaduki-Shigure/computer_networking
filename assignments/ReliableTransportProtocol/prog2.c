@@ -151,16 +151,16 @@ void window_send(int AorB, sender_class* sender)
 /* called from layer 5, passed the data to be sent to other side */
 void sender_output(int AorB, sender_class* sender, struct msg message)
 {
-    char* highlight_str;
+    char highlight_str[16] = {0};
     char highlight_str_A[16] = "A_sender_output:";
     char highlight_str_B[16] = "B_sender_output:";
     if (!AorB)
     {
-        strcpy(highlight_str, highlight_str_A, 16);
+        highlight_str = highlight_str_A;
     }
     else
     {
-        strcpy(highlight_str, highlight_str_B, 16);
+        highlight_str = highlight_str_B;
     }
     if (sender->buffer_ptr - sender->base >= BUFFER_SIZE)
     {
@@ -181,16 +181,16 @@ void sender_output(int AorB, sender_class* sender, struct msg message)
 /* called from layer 3, when a packet arrives for layer 4 */
 void sender_input(int AorB, sender_class* sender, struct pkt packet)
 {
-    char* highlight_str;
+    char highlight_str[16] = {0};
     char highlight_str_A[16] = "A_sender_input:";
     char highlight_str_B[16] = "B_sender_input:";
     if (!AorB)
     {
-        strcpy(highlight_str, highlight_str_A, 16);
+        highlight_str = highlight_str_A;
     }
     else
     {
-        strcpy(highlight_str, highlight_str_B, 16);
+        highlight_str = highlight_str_B;
     }
     if (cal_checksum(&packet) != packet.checksum)
     {
@@ -223,16 +223,16 @@ void sender_input(int AorB, sender_class* sender, struct pkt packet)
 /* called when sender's timer goes off */
 void sender_timerinterrupt(int AorB, sender_class* sender)
 {
-    char* highlight_str;
+    char highlight_str[16] = {0};
     char highlight_str_A[16] = "A_timerinterrupt:";
     char highlight_str_B[16] = "B_timerinterrupt:";
     if (!AorB)
     {
-        strcpy(highlight_str, highlight_str_A, 16);
+        highlight_str = highlight_str_A;
     }
     else
     {
-        strcpy(highlight_str, highlight_str_B, 16);
+        highlight_str = highlight_str_B;
     }
     int i = 0;
     for (i = sender->base; i < sender->next_seq; ++i)
@@ -249,16 +249,16 @@ void sender_timerinterrupt(int AorB, sender_class* sender)
 /* called from layer 3, when a packet arrives for layer 4 at receiver*/
 void receiver_input(int AorB, receiver_class* receiver, struct pkt packet)
 {
-    char* highlight_str;
+    char highlight_str[16] = {0};
     char highlight_str_A[16] = "A_receiver_input:";
     char highlight_str_B[16] = "B_receiver_input:";
     if (!AorB)
     {
-        strcpy(highlight_str, highlight_str_A, 16);
+        highlight_str = highlight_str_A;
     }
     else
     {
-        strcpy(highlight_str, highlight_str_B, 16);
+        highlight_str = highlight_str_B;
     }
     if (cal_checksum(&packet) != packet.checksum)
     {
