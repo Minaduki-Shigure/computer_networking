@@ -239,7 +239,7 @@ void sender_timerinterrupt(int AorB, sender_class* sender)
     for (i = sender->base; i < sender->next_seq; ++i)
     {
         struct pkt* resend = sender->buffer + (i % BUFFER_SIZE);
-        send->acknum = -1; // acknum = -1 means this is not an ACK packet.
+        resend->acknum = -1; // acknum = -1 means this is not an ACK packet.
         hightlight_printf(highlight_str);
         printf("Timeout for SEQ = %d. Resending.\n", resend->seqnum);
         tolayer3(AorB, *resend);
