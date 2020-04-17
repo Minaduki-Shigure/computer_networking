@@ -96,7 +96,7 @@ int cal_checksum(struct pkt* packet)
     }
     while (checksum > 0xffff)
     {
-        checksum = checksum & 0xff + (checksum >> 16);
+        checksum = (checksum & 0xff) + (checksum >> 16);
     }
     checksum = 0xffff - checksum;
     return checksum;
