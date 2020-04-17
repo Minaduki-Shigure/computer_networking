@@ -298,7 +298,8 @@ void A_output(struct msg message)
 /* need be completed only for extra credit */
 void B_output(struct msg message)
 {
-    printf("  B_output: uni-directional. ignore.\n");
+    sender_output(1, &sender_B, message);
+    // printf("  B_output: uni-directional. ignore.\n");
 }
 
 void A_input(struct pkt packet)
@@ -323,6 +324,7 @@ void A_timerinterrupt(void)
 void A_init(void)
 {
     sender_init(&sender_A);
+    receiver_init(&receiver_A);
 }
 
 /* Note that with simplex transfer from a-to-B, there is no B_output() */
@@ -335,19 +337,27 @@ void send_ack(int AorB, int ack)
 /* called from layer 3, when a packet arrives for layer 4 at B*/
 void B_input(struct pkt packet)
 {
-    receiver_input(1, &receiver_B, packet);
+    if (-1 == packet.acknum)
+    {
+        receiver_input(1, &receiver_B, packet);
+    }
+    {
+        sender_input(1, &sender_B, packet);
+    }
 }
 
 /* called when B's timer goes off */
 void B_timerinterrupt(void)
 {
-    printf("  B_timerinterrupt: B doesn't have a timer. ignore.\n");
+    sender_timerinterrupt(1, &sender_B);
+    // printf("  B_timerinterrupt: B doesn't have a timer. ignore.\n");
 }
 
 /* the following rouytine will be called once (only) before any other */
 /* entity B routines are called. You can use it to do any initialization */
 void B_init(void)
 {
+    sender_init(&sender_B);
     receiver_init(&receiver_B);
 }
 
