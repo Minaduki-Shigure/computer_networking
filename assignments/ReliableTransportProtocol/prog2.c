@@ -138,6 +138,7 @@ void window_send(int AorB, sender_class* sender)
     {
         struct pkt* send = sender->buffer + (sender->next_seq % BUFFER_SIZE);
         send->acknum = -1; // acknum = -1 means this is not an ACK packet.
+        send->checksum = cal_checksum(send);
         hightlight_printf("window_send:");
         printf("Sending SEQ = %d.\n", send->seqnum);
         tolayer3(AorB, *send);
@@ -240,6 +241,7 @@ void sender_timerinterrupt(int AorB, sender_class* sender)
     {
         struct pkt* resend = sender->buffer + (i % BUFFER_SIZE);
         resend->acknum = -1; // acknum = -1 means this is not an ACK packet.
+        resend->checksum = cal_checksum(resend);
         hightlight_printf(highlight_str);
         printf("Timeout for SEQ = %d. Resending.\n", resend->seqnum);
         tolayer3(AorB, *resend);
