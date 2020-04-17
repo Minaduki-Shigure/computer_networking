@@ -47,6 +47,7 @@ void tolayer5(int AorB, char datasent[20]);
 
 #define BUFFER_SIZE 50
 #define DEFAULT_WINDOW_SIZE 16
+#define MAX_RTT_TOLERANCE 10000
 
 typedef struct {
     int base;
@@ -246,7 +247,10 @@ void sender_timerinterrupt(int AorB, sender_class* sender)
         printf("Timeout for SEQ = %d. Resending.\n", resend->seqnum);
         tolayer3(AorB, *resend);
     }
-    sender->estimatedRTT = sender->estimatedRTT + 10;
+    if (sender->estimatedRTT < MAX_RTT_TOLERANCE)
+    {
+        sender->estimatedRTT = sender->estimatedRTT + 10;
+    }
     starttimer(AorB, sender->estimatedRTT);
 }
 
