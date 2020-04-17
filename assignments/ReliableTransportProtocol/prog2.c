@@ -85,22 +85,6 @@ void sender_init(sender_class* sender)
     sender->estimatedRTT = 20;
 }
 
-void receiver_init(receiver_class* receiver)
-{
-    receiver->expecting_seq = 1;
-    (receiver->ack_buffer).seqnum = -1;
-    (receiver->ack_buffer).acknum = 0;
-    memset((receiver->ack_buffer).payload, 0, 20);
-    memcpy((receiver->ack_buffer).payload, "ACK", 4);
-    (receiver->ack_buffer).checksum = cal_checksum(&(receiver->ack_buffer));
-}
-
-void hightlight_printf(const char* content)
-{
-    printf("\033[31m%s \033[0m", content);
-    return;
-}
-
 int cal_checksum(struct pkt* packet)
 {
     int checksum = 0;
@@ -116,6 +100,22 @@ int cal_checksum(struct pkt* packet)
     }
     checksum = 0xffff - checksum;
     return checksum;
+}
+
+void receiver_init(receiver_class* receiver)
+{
+    receiver->expecting_seq = 1;
+    (receiver->ack_buffer).seqnum = -1;
+    (receiver->ack_buffer).acknum = 0;
+    memset((receiver->ack_buffer).payload, 0, 20);
+    memcpy((receiver->ack_buffer).payload, "ACK", 4);
+    (receiver->ack_buffer).checksum = cal_checksum(&(receiver->ack_buffer));
+}
+
+void hightlight_printf(const char* content)
+{
+    printf("\033[31m%s \033[0m", content);
+    return;
 }
 
 // The following function was written for the list implement of the window and is deprecated now.
