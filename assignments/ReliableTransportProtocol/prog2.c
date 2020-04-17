@@ -250,7 +250,7 @@ void B_input(struct pkt packet)
         return;
     }
     hightlight_printf("B_input:");
-    printf("Received packet SEQ = %d. Sending ACK = %d.", packet.seqnum, packet.seqnum);
+    printf("Received packet SEQ = %d. Sending ACK = %d.\n", packet.seqnum, packet.seqnum);
     tolayer5(1, packet.payload);
     receiver_B.ack_buffer.acknum = packet.seqnum;
     receiver_B.ack_buffer.checksum = cal_checksum(&(receiver_B.ack_buffer));
