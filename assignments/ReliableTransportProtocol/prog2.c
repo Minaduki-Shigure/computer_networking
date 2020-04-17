@@ -276,7 +276,7 @@ void receiver_input(int AorB, receiver_class* receiver, struct pkt packet)
     }
     hightlight_printf(highlight_str);
     printf("Received packet SEQ = %d. Sending ACK = %d.\n", packet.seqnum, packet.seqnum);
-    strcat(highlight_str, "Content:");
+    strcat(highlight_str, " Content:");
     hightlight_printf(highlight_str);
     printf("%s", packet.payload);
     tolayer5(AorB, packet.payload);
