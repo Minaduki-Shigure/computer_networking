@@ -156,11 +156,11 @@ void sender_output(int AorB, sender_class* sender, struct msg message)
     char highlight_str_B[16] = "B_sender_output:";
     if (!AorB)
     {
-        highlight_str = highlight_str_A;
+        strcpy(highlight_str, highlight_str_A, 16);
     }
     else
     {
-        highlight_str = highlight_str_B;
+        strcpy(highlight_str, highlight_str_B, 16);
     }
     if (sender->buffer_ptr - sender->base >= BUFFER_SIZE)
     {
@@ -186,11 +186,11 @@ void sender_input(int AorB, sender_class* sender, struct pkt packet)
     char highlight_str_B[16] = "B_sender_input:";
     if (!AorB)
     {
-        highlight_str = highlight_str_A;
+        strcpy(highlight_str, highlight_str_A, 16);
     }
     else
     {
-        highlight_str = highlight_str_B;
+        strcpy(highlight_str, highlight_str_B, 16);
     }
     if (cal_checksum(&packet) != packet.checksum)
     {
@@ -228,11 +228,11 @@ void sender_timerinterrupt(int AorB, sender_class* sender)
     char highlight_str_B[16] = "B_timerinterrupt:";
     if (!AorB)
     {
-        highlight_str = highlight_str_A;
+        strcpy(highlight_str, highlight_str_A, 16);
     }
     else
     {
-        highlight_str = highlight_str_B;
+        strcpy(highlight_str, highlight_str_B, 16);
     }
     int i = 0;
     for (i = sender->base; i < sender->next_seq; ++i)
@@ -254,11 +254,11 @@ void receiver_input(int AorB, receiver_class* receiver, struct pkt packet)
     char highlight_str_B[16] = "B_receiver_input:";
     if (!AorB)
     {
-        highlight_str = highlight_str_A;
+        strcpy(highlight_str, highlight_str_A, 16);
     }
     else
     {
-        highlight_str = highlight_str_B;
+        strcpy(highlight_str, highlight_str_B, 16);
     }
     if (cal_checksum(&packet) != packet.checksum)
     {
