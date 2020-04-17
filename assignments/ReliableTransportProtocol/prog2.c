@@ -65,29 +65,15 @@ typedef struct {
 
 // Tried to implement the Window via linked list but failed to realize...
 // Forget it! The following type is not used.
-typedef struct {
+typedef struct packet_list_node{
     struct pkt* packet;
-    Window* next;
+    struct packet_list_node* next;
 } Window;
 
 sender_class sender_A;
 sender_class sender_B;
 receiver_class receiver_A;
 receiver_class receiver_B;
-
-// The following function was written for the list implement of the window and is deprecated now.
-// The packet will now be pre-generated when the sender initialized.
-struct pkt* gen_packet(int seq, const char data[20])
-{
-    struct pkt* new_packet;
-    new_packet = (struct ptk*)malloc(sizeof(struct pkt));
-    memset(new_packet, 0, sizeof(struct pkt));
-    new_packet->seqnum = seq;
-    new_packet->acknum = -1;
-    memcpy(new_packet->payload, data, 20);
-    new_packet->checksum = cal_checksum(new_packet);
-    return new_packet;
-}
 
 void sender_init(sender_class* sender)
 {
@@ -132,6 +118,20 @@ int cal_checksum(struct pkt* packet)
     return checksum;
 }
 
+// The following function was written for the list implement of the window and is deprecated now.
+// The packet will now be pre-generated when the sender initialized.
+struct pkt* gen_packet(int seq, const char data[20])
+{
+    struct pkt* new_packet;
+    new_packet = (struct ptk*)malloc(sizeof(struct pkt));
+    memset(new_packet, 0, sizeof(struct pkt));
+    new_packet->seqnum = seq;
+    new_packet->acknum = -1;
+    memcpy(new_packet->payload, data, 20);
+    new_packet->checksum = cal_checksum(new_packet);
+    return new_packet;
+}
+
 void window_send(void)
 {
     while ((sender_A.next_seq < sender_A.buffer_ptr) && (sender_A.next_seq < sender_A.base + sender_A.window_size))
@@ -157,7 +157,7 @@ void A_output(struct msg message)
         printf("Buffer overflow. Message dropped.\n");
         return;
     }
-    struct pkt* new_packet = buffer + (buffer_ptr % BUFFER_SIZE);
+    struct pkt* new_packet = sender_A.buffer + (sender_A.buffer_ptr % BUFFER_SIZE);
     new_packet->seqnum = sender_A.buffer_ptr;
     memcpy(new_packet->payload, message.data, 20);
     new_packet->checksum = cal_checksum(new_packet);
@@ -214,7 +214,7 @@ void A_timerinterrupt(void)
         printf("Timeout for SEQ = %d. Resending.\n", resend->seqnum);
         tolayer3(0, *resend);
     }
-    estimatedRTT = estimatedRTT + 10;
+    sender_A.estimatedRTT = sender_A.estimatedRTT + 10;
     starttimer(0, sender_A.estimatedRTT);
 }
 
