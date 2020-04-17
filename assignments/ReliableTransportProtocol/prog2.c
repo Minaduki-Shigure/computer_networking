@@ -214,7 +214,7 @@ void A_timerinterrupt(void)
         printf("Timeout for SEQ = %d. Resending.\n", resend->seqnum);
         tolayer3(0, *resend);
     }
-    sender_A.estimatedRTT = sender_A.estimatedRTT + 1;
+    sender_A.estimatedRTT = sender_A.estimatedRTT + 10;
     starttimer(0, sender_A.estimatedRTT);
 }
 
