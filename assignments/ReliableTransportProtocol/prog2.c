@@ -199,6 +199,7 @@ void A_input(struct pkt packet)
     }
     else
     {
+        // The timer will now be started by window_send()
         // starttimer(0, sender_A.estimatedRTT);
     }
 }
