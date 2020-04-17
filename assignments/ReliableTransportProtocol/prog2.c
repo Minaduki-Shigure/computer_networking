@@ -46,27 +46,125 @@ void tolayer5(int AorB, char datasent[20]);
 /********* STUDENTS WRITE THE NEXT SEVEN ROUTINES *********/
 
 #define BUFFER_SIZE 50
+#define DEFAULT_WINDOW_SIZE 16
 
 typedef struct {
-    int seq;
+    int base;
     int next_seq;
+    // int message_num;
     int window_size;
-    int buffer_ptr;
+    int buffer_ptr; // Top of the buffer.
     struct pkt buffer[BUFFER_SIZE];
     double estimatedRTT;
 } sender_class;
 
 typedef struct {
-    int seq;
-    struct pkt buffer;
+    int expecting_seq;
+    struct pkt ack_buffer;
 } receiver_class;
 
-sender_class sender;
-receiver_class receiver;
+// Tried to implement the Window via linked list but failed to realize...
+// Forget it! The following type is not used.
+typedef struct {
+    struct pkt* packet;
+    Window* next;
+} Window;
+
+sender_class sender_A;
+sender_class sender_B;
+receiver_class receiver_A;
+receiver_class receiver_B;
+
+// The following function was written for the list implement of the window and is deprecated now.
+// The packet will now be pre-generated when the sender initialized.
+struct pkt* gen_packet(int seq, const char data[20])
+{
+    struct pkt* new_packet;
+    new_packet = (struct ptk*)malloc(sizeof(struct pkt));
+    memset(new_packet, 0, sizeof(struct pkt));
+    new_packet->seqnum = seq;
+    new_packet->acknum = -1;
+    memcpy(new_packet->payload, data, 20);
+    new_packet->checksum = cal_checksum(new_packet);
+    return new_packet;
+}
+
+void sender_init(sender_class* sender)
+{
+    sender->base = 1;
+    sender->next_seq = 1;
+    // sender->message_num = 0;
+    sender->window_size = DEFAULT_WINDOW_SIZE;
+    sender->buffer_ptr = 1;
+    sender->estimatedRTT = 20;
+}
+
+void receiver_init(receiver_class* receiver)
+{
+    receiver->expecting_seq = 1;
+    (receiver->ack_buffer).seqnum = -1;
+    (receiver->ack_buffer).acknum = 0;
+    memset((receiver->ack_buffer).payload, 0, 20);
+    memcpy((receiver->ack_buffer).payload, "ACK", 4);
+    (receiver->ack_buffer).checksum = cal_checksum(&(receiver->ack_buffer));
+}
+
+void hightlight_printf(const char* content)
+{
+    printf("\033[31m%s \033[0m", content);
+    return;
+}
+
+int cal_checksum(struct pkt* packet)
+{
+    int checksum = 0;
+    int i = 0;
+    checksum += (packet->seqnum << 8) + packet->acknum;
+    for (i = 0; i < 10; ++i)
+    {
+        checksum += (packet->payload[2 * i] << 8) + packet->payload[2 * i + 1];
+    }
+    while (checksum > 0xffff)
+    {
+        checksum = checksum & 0xff + (checksum >> 16);
+    }
+    checksum = 0xffff - checksum;
+    return checksum;
+}
+
+void window_send(void)
+{
+    while ((sender_A.next_seq < sender_A.buffer_ptr) && (sender_A.next_seq < sender_A.base + sender_A.window_size))
+    {
+        struct pkt* send = sender_A.buffer + (sender_A.next_seq % BUFFER_SIZE);
+        hightlight_printf("window_send:");
+        printf("Sending SEQ = %d.\n", send->seqnum);
+        tolayer3(0, *send);
+        if (sender_A.base == sender_A.next_seq)
+        {
+            starttimer(0, sender_A.estimatedRTT);
+        }
+        ++sender_A.next_seq;
+    }
+}
 
 /* called from layer 5, passed the data to be sent to other side */
 void A_output(struct msg message)
 {
+    if (sender_A.buffer_ptr - sender_A.base >= BUFFER_SIZE)
+    {
+        hightlight_printf("A_output:");
+        printf("Buffer overflow. Message dropped.\n");
+        return;
+    }
+    struct pkt* new_packet = buffer + (buffer_ptr % BUFFER_SIZE);
+    new_packet->seqnum = sender_A.buffer_ptr;
+    memcpy(new_packet->payload, message.data, 20);
+    new_packet->checksum = cal_checksum(new_packet);
+    hightlight_printf("A_output:");
+    printf("Added message. Allocated SEQ = %d.\n", new_packet->seqnum);
+    ++sender_A.buffer_ptr;
+    window_send();
 }
 
 /* need be completed only for extra credit */
@@ -78,28 +176,86 @@ void B_output(struct msg message)
 /* called from layer 3, when a packet arrives for layer 4 */
 void A_input(struct pkt packet)
 {
+    if (cal_checksum(&packet) != packet.checksum)
+    {
+        hightlight_printf("A_input:");
+        printf("Packet corrupted. Dropping packet.\n");
+        return;
+    }
+    if (packet.acknum < sender_A.base)
+    {
+        hightlight_printf("A_input:");
+        printf("Received duplicate ACK. Packet ignored.\n");
+        return;
+    }
+    hightlight_printf("A_input:");
+    printf("Got ACK = %d.\n", packet.acknum);
+    sender_A.base = packet.acknum + 1;
+    
+    if (sender_A.base == sender_A.next_seq)
+    {
+        stoptimer(0);
+        window_send();
+    }
+    else
+    {
+        starttimer(0, sender_A.estimatedRTT);
+    }
 }
 
 /* called when A's timer goes off */
 void A_timerinterrupt(void)
 {
+    int i = 0;
+    for (i = sender_A.base; i < sender_A.next_seq; ++i)
+    {
+        struct pkt* resend = sender_A.buffer + (i % BUFFER_SIZE);
+        hightlight_printf("A_timerinterrupt:");
+        printf("Timeout for SEQ = %d. Resending.\n", resend->seqnum);
+        tolayer3(0, *resend);
+    }
+    estimatedRTT = estimatedRTT + 10;
+    starttimer(0, sender_A.estimatedRTT);
 }
 
 /* the following routine will be called once (only) before any other */
 /* entity A routines are called. You can use it to do any initialization */
 void A_init(void)
 {
+    sender_init(&sender_A);
 }
 
 /* Note that with simplex transfer from a-to-B, there is no B_output() */
 
 void send_ack(int AorB, int ack)
 {
+    // Do nothing. This function is implemented somewhere else.
 }
 
 /* called from layer 3, when a packet arrives for layer 4 at B*/
 void B_input(struct pkt packet)
 {
+    if (cal_checksum(&packet) != packet.checksum)
+    {
+        hightlight_printf("B_input:");
+        printf("Packet corrupted. Sending last ACK = %d.\n", receiver_B.ack_buffer.acknum);
+        tolayer3(1, receiver_B.ack_buffer);
+        return;
+    }
+    if (packet.seqnum != receiver_B.expecting_seq)
+    {
+        hightlight_printf("B_input:");
+        printf("Unexpected seqnum received. Sending last ACK = %d.\n", receiver_B.ack_buffer.acknum);
+        tolayer3(1, receiver_B.ack_buffer);
+        return;
+    }
+    hightlight_printf("B_input:");
+    printf("Received packet SEQ = %d. Sending ACK = %d.", packet.seqnum, packet.seqnum);
+    tolayer5(1, packet.payload);
+    receiver_B.ack_buffer.acknum = packet.seqnum;
+    receiver_B.ack_buffer.checksum = cal_checksum(&(receiver_B.ack_buffer));
+    ++receiver_B.expecting_seq;
+    tolayer3(1, receiver_B.ack_buffer);
 }
 
 /* called when B's timer goes off */
@@ -112,6 +268,7 @@ void B_timerinterrupt(void)
 /* entity B routines are called. You can use it to do any initialization */
 void B_init(void)
 {
+    receiver_init(&receiver_B);
 }
 
 /*****************************************************************
