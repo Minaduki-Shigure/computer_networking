@@ -27,7 +27,7 @@ typedef struct
 } node_class;
 
 void node_constructor(node_class* node_ptr, int node_id);
-int updatemincost(node_class* node_ptr)
+int updatemincost(node_class* node_ptr);
 void sendcost(node_class* node_ptr);
 void rtinit(node_class* node_ptr, const int* initcost);
 void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt);
