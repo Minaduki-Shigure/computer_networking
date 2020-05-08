@@ -5,7 +5,7 @@ vpath %.o ./obj/
 
 all: prog3
 
-prog3: *.o
+prog3: ./obj/prog3.o ./obj/node.o ./obj/node1.o ./obj/node2.o ./obj/node3.o 
 	$(CC) $(CFLAGS) -o $@ $^
 
 ./obj/%.o : ./src/%.c
