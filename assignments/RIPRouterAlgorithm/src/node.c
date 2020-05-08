@@ -7,7 +7,7 @@ void node_constructor(node_class* node_ptr, int node_id)
 {
     node_ptr->id = node_id;
     memset((node_ptr->dt).costs, 999, 16 * sizeof(int));
-    memset((node_ptr->mincost, 999, 4 * sizeof(int));
+    memset(node_ptr->mincost, 999, 4 * sizeof(int));
 }
 
 int updatemincost(node_class* node_ptr)
@@ -18,9 +18,9 @@ int updatemincost(node_class* node_ptr)
     {
         for (j = 0; j < 4; ++j)
         {
-            if ((node_ptr->dt).cost[i][j] < node_ptr->mincost[i])
+            if ((node_ptr->dt).costs[i][j] < node_ptr->mincost[i])
             {
-                node_ptr->mincost[i] = (node_ptr->dt).cost[i][j];
+                node_ptr->mincost[i] = (node_ptr->dt).costs[i][j];
                 updated = 1;
             }
         }
@@ -47,7 +47,7 @@ void sendcost(node_class* node_ptr)
 void rtinit(node_class* node_ptr, const int* initcost)
 {
     int i = 0;
-    for (i = 0; i < 4, ++i)
+    for (i = 0; i < 4; ++i)
     {
         (node_ptr->dt).costs[i][i] = initcost[i];
     }
@@ -60,7 +60,6 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
 {
     int i = 0;
     int sid = 0;
-    int updated = 0;
 
     if (rcvdpkt->destid != node_ptr->id)
     {
@@ -71,7 +70,7 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
     sid = rcvdpkt->sourceid;
     for (i = 0; i < 4; ++i)
     {
-        (node_ptr->dt).costs[i][sid] = rcvdpkt->mincost[i] + (node_ptr->dt).cost[sid][sid];
+        (node_ptr->dt).costs[i][sid] = rcvdpkt->mincost[i] + (node_ptr->dt).costs[sid][sid];
     }
 
     if (updatemincost(node_ptr))
@@ -86,13 +85,13 @@ void printdt(node_class* node_ptr)
     printf("                via     \n");
     printf("   D0 |    0    1     2     3 \n");
     printf("  ----|-----------------------\n");
-    printf("     0|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[0][0], (node_ptr->dt).costs[0][1], (node_ptr->dt).costs[0][2], (node_obj->dt).costs[0][3]);
-    printf("     1|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[1][0], (node_ptr->dt).costs[1][1], (node_ptr->dt).costs[1][2], (node_obj->dt).costs[1][3]);
-    printf("dest 2|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[2][0], (node_ptr->dt).costs[2][1], (node_ptr->dt).costs[2][2], (node_obj->dt).costs[2][3]);
-    printf("     3|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[3][0], (node_ptr->dt).costs[3][1], (node_ptr->dt).costs[3][2], (node_obj->dt).costs[3][3]);
+    printf("     0|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[0][0], (node_ptr->dt).costs[0][1], (node_ptr->dt).costs[0][2], (node_ptr->dt).costs[0][3]);
+    printf("     1|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[1][0], (node_ptr->dt).costs[1][1], (node_ptr->dt).costs[1][2], (node_ptr->dt).costs[1][3]);
+    printf("dest 2|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[2][0], (node_ptr->dt).costs[2][1], (node_ptr->dt).costs[2][2], (node_ptr->dt).costs[2][3]);
+    printf("     3|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[3][0], (node_ptr->dt).costs[3][1], (node_ptr->dt).costs[3][2], (node_ptr->dt).costs[3][3]);
 }
 
 void linkhandler(node_class* node_ptr, int linkid, int newcost)
 {
-    
+
 }
