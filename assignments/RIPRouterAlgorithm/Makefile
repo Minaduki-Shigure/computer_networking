@@ -1,9 +1,11 @@
 CC = gcc
 CFLAGS = -Wall -g
 
+vpath %.o ./obj/
+
 all: prog3
 
-prog3: ./obj/\*.o
+prog3: *.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 ./obj/%.o : ./src/%.c
