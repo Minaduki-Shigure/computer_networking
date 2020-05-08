@@ -6,10 +6,13 @@
 void node_constructor(node_class* node_ptr, int node_id)
 {
     node_ptr->id = node_id;
+    int* ptr;
     int bias = 0;
+    
+    ptr = (node_ptr->dt).costs;
     for (bias = 0; bias < 16; ++bias)
     {
-        (node_ptr->dt).costs[bias] = 999;   // Anyway, it's a bias.
+        ptr[bias] = 999;   // Anyway, it's a bias.
     }
     for (bias = 0; bias < 4; ++bias)
     {
