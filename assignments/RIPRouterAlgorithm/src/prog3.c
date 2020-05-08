@@ -1,4 +1,5 @@
-#include "node.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #define LINKCHANGES 0 
 /* ******************************************************************
