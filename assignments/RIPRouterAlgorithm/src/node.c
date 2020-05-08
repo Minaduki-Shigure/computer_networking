@@ -8,6 +8,7 @@ void node_constructor(node_class* node_ptr, int node_id)
     node_ptr->id = node_id;
     memset((node_ptr->dt).costs, 999, 16 * sizeof(int));
     memset(node_ptr->mincost, 999, 4 * sizeof(int));
+    printdt(node_ptr);
 }
 
 int updatemincost(node_class* node_ptr)
@@ -26,7 +27,6 @@ int updatemincost(node_class* node_ptr)
         }
     }
     return updated;
-    printdt(node_ptr);
 }
 
 void sendcost(node_class* node_ptr)
