@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <memory.h>
 
 extern struct rtpkt {
     int sourceid;       /* id of sending router sending this pkt */
