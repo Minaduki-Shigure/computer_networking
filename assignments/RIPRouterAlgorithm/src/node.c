@@ -26,6 +26,7 @@ int updatemincost(node_class* node_ptr)
         }
     }
     return updated;
+    printdt(node_ptr);
 }
 
 void sendcost(node_class* node_ptr)
@@ -82,6 +83,7 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
 
 void printdt(node_class* node_ptr)
 {
+    printf("        dt for node %d     \n", node_ptr->id);
     printf("                via     \n");
     printf("   D0 |    0    1     2     3 \n");
     printf("  ----|-----------------------\n");
