@@ -1,6 +1,7 @@
 #include "node.h"
 
 int initcost0[4] = {0, 1, 3, 7};
+int neighbour0[4] = {0, 1, 1, 1};
 
 node_class Node0;
 

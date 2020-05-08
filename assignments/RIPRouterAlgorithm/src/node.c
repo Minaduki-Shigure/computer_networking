@@ -49,7 +49,7 @@ void sendcost(node_class* node_ptr)
     memcpy(packet.mincost, node_ptr->mincost, 4 * sizeof(int));
     for (i = 0; i < 4; ++i)
     {
-        if (i != node_ptr->id)
+        if ((node_ptr->neighbour)[i])
         {
             packet.destid = i;
             tolayer2(packet);
@@ -57,12 +57,13 @@ void sendcost(node_class* node_ptr)
     }
 }
 
-void rtinit(node_class* node_ptr, const int* initcost)
+void rtinit(node_class* node_ptr, const int* initcost, const int* neighbour)
 {
     int i = 0;
     for (i = 0; i < 4; ++i)
     {
         (node_ptr->dt).costs[i][i] = initcost[i];
+        (node_ptr->neighbour)[i] = neighbour[i];
     }
     updatemincost(node_ptr);
     sendcost(node_ptr);

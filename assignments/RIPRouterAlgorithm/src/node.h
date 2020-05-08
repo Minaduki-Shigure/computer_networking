@@ -27,12 +27,13 @@ typedef struct
     int id;
     struct distance_table dt;
     int mincost[4];
+    int neighbour[4];
 } node_class;
 
 void node_constructor(node_class* node_ptr, int node_id);
 int updatemincost(node_class* node_ptr);
 void sendcost(node_class* node_ptr);
-void rtinit(node_class* node_ptr, const int* initcost);
+void rtinit(node_class* node_ptr, const int* initcost, const int* neighbour);
 void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt);
 void printdt(node_class* node_ptr);
 void linkhandler(node_class* node_ptr, int linkid, int newcost);
