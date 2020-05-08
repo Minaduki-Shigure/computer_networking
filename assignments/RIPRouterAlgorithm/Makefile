@@ -14,5 +14,7 @@ prog3: ./obj/prog3.o ./obj/node.o ./obj/node0.o ./obj/node1.o ./obj/node2.o ./ob
 test: prog3
 	./prog3
 
+.PHONY : clean
+
 clean:
 	rm -rf prog3 ./obj/*
