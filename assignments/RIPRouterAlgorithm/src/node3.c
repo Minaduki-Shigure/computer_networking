@@ -8,7 +8,7 @@ node_class Node3;
 void rtinit3(void)
 {
     node_constructor(&Node3, 0);
-    rtinit(&Node3, initcost3);
+    rtinit(&Node3, initcost3, neighbour3);
 }
 
 void rtupdate3(struct rtpkt *rcvdpkt)
