@@ -3,7 +3,7 @@ CFLAGS = -Wall -g
 
 all: prog3
 
-prog3: ./obj/%.o
+prog3: ./obj/*.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 ./obj/%.o : ./src/%.c
