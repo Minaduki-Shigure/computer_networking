@@ -1,23 +1,23 @@
 #include "node.h"
 
-int initcost[4] = {1, 0, 1, 999};
+int initcost1[4] = {1, 0, 1, 999};
 
-node_class Node;
+node_class Node1;
 
 void rtinit1(void)
 {
-    node_constructor(&Node, 1);
-    rtinit(&Node, initcost);
+    node_constructor(&Node1, 1);
+    rtinit(&Node1, initcost1);
 }
 
 void rtupdate1(struct rtpkt* rcvdpkt)
 {
-    rtupdate(&Node, rcvdpkt);
+    rtupdate(&Node1, rcvdpkt);
 }
 
 void printdt1(void)
 {
-    printdt(&Node);
+    printdt(&Node1);
 }
 
 void linkhandler1(int linkid, int newcost)
@@ -26,5 +26,5 @@ void linkhandler1(int linkid, int newcost)
 /* to use this routine, you'll need to change the value of the LINKCHANGE */
 /* constant definition in prog3.c from 0 to 1 */
 {
-    linkhandler(&Node, linkid, newcost);
+    linkhandler(&Node1, linkid, newcost);
 }
