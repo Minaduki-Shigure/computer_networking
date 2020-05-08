@@ -6,8 +6,15 @@
 void node_constructor(node_class* node_ptr, int node_id)
 {
     node_ptr->id = node_id;
-    memset((node_ptr->dt).costs, 999, 16 * sizeof(int));
-    memset(node_ptr->mincost, 999, 4 * sizeof(int));
+    int bias = 0;
+    for (bias = 0; bias < 16; ++bias)
+    {
+        (node_ptr->dt).costs = 999;
+    }
+    for (bias = 0; bias < 4; ++bias)
+    {
+        node_ptr->mincost = 999;
+    }
     printdt(node_ptr);
 }
 
