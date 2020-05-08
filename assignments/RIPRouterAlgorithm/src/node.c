@@ -18,7 +18,6 @@ void node_constructor(node_class* node_ptr, int node_id)
     {
         node_ptr->mincost[bias] = 999;
     }
-    printdt(node_ptr);
 }
 
 int updatemincost(node_class* node_ptr)
@@ -37,6 +36,9 @@ int updatemincost(node_class* node_ptr)
         }
     }
     return updated;
+    #if DEBUG
+    printdt(node_ptr);
+    #endif
 }
 
 void sendcost(node_class* node_ptr)
