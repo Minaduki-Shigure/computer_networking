@@ -112,13 +112,46 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
 
 void printdt(node_class* node_ptr)
 {
-    printf("                via     \n");
-    printf("   D%d |    0    1     2     3 \n", node_ptr->id);
-    printf("  ----|-----------------------\n");
-    printf("     0|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[0][0], (node_ptr->dt).costs[0][1], (node_ptr->dt).costs[0][2], (node_ptr->dt).costs[0][3]);
-    printf("     1|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[1][0], (node_ptr->dt).costs[1][1], (node_ptr->dt).costs[1][2], (node_ptr->dt).costs[1][3]);
-    printf("dest 2|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[2][0], (node_ptr->dt).costs[2][1], (node_ptr->dt).costs[2][2], (node_ptr->dt).costs[2][3]);
-    printf("     3|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[3][0], (node_ptr->dt).costs[3][1], (node_ptr->dt).costs[3][2], (node_ptr->dt).costs[3][3]);
+    int i, j = 0;
+
+    printf("  dest          via     \n");
+
+    printf("   D%d |", node_ptr->id);
+
+    for (j = 0; j < 4; ++j)
+    {
+        if ((node_ptr->neighbour)[j])
+        {
+            printf("    %d", j);
+        }
+    }
+    printf(" \n");
+
+    printf("  ----|");
+    for (j = 0; j < 4; ++j)
+    {
+        if ((node_ptr->neighbour)[j])
+        {
+            printf("-----", j);
+        }
+    }
+    printf("\n");
+
+    for (i = 0; i < 4; ++i)
+    {
+        if (i != node_ptr->id)
+        {
+            printf("     %d|", i);
+            for (j = 0; j < 4; ++j)
+            {
+                if ((node_ptr->neighbour)[j])
+                {
+                    printf("  %3d", (node_ptr->dt).costs[i][j]);
+                }
+            }
+            printf("\n");
+        }
+    }
 }
 
 void linkhandler(node_class* node_ptr, int linkid, int newcost)
