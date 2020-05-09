@@ -11,7 +11,7 @@ extern struct rtpkt {
     int sourceid;       /* id of sending router sending this pkt */
     int destid;         /* id of router to which pkt being sent 
                          (must be an immediate neighbor) */
-    int mincost[4];    /* min cost to node 0 ... 3 */
+    int mincost[NODESUM];    /* min cost to node 0 ... 3 */
 };
 
 extern int TRACE;
@@ -24,15 +24,15 @@ extern tolayer2(struct rtpkt packet);
 
 struct distance_table 
 {
-  int costs[4][4];
+  int costs[NODESUM][NODESUM];
 };
 
 typedef struct
 {
     int id;
     struct distance_table dt;
-    int mincost[4];
-    int neighbour[4];
+    int mincost[NODESUM];
+    int neighbour[NODESUM];
 } node_class;
 
 void node_constructor(node_class* node_ptr, int node_id);
