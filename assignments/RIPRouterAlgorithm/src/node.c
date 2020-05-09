@@ -50,6 +50,7 @@ void sendcost(node_class* node_ptr)
         {
             packet.destid = i;
             tolayer2(packet);
+            printf("\033[31mTime = %.3f. Node %d sent packet to Node %d : %d %d %d %d\033[0m\n", clocktime, node_ptr->id, i, packet.mincost[0], packet.mincost[1], packet.mincost[2], packet.mincost[3]);
         }
     }
 }
