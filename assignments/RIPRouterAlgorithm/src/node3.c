@@ -1,7 +1,7 @@
 #include "node.h"
 
 extern int initcost3[NODESUM];
-extern int neighbour3[NODESUM]
+extern int neighbour3[NODESUM];
 
 node_class Node3;
 
