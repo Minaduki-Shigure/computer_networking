@@ -35,7 +35,6 @@ int updatemincost(node_class* node_ptr)
             }
         }
     }
-    printdt(node_ptr);
     return updated;
 }
 
@@ -72,6 +71,7 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
 {
     int i = 0;
     int sid = 0;
+    int modified = 0;
 
     if (rcvdpkt->destid != node_ptr->id)
     {
@@ -82,7 +82,16 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
     sid = rcvdpkt->sourceid;
     for (i = 0; i < 4; ++i)
     {
-        (node_ptr->dt).costs[i][sid] = rcvdpkt->mincost[i] + (node_ptr->dt).costs[sid][sid];
+        if ((node_ptr->dt).costs[i][sid] != rcvdpkt->mincost[i] + (node_ptr->dt).costs[sid][sid])
+        {
+            modified = 1;
+            (node_ptr->dt).costs[i][sid] = rcvdpkt->mincost[i] + (node_ptr->dt).costs[sid][sid];
+        }
+    }
+
+    if (modified)
+    {
+        printdt(node_ptr);
     }
 
     if (updatemincost(node_ptr))
