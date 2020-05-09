@@ -13,6 +13,8 @@ extern int TRACE;
 extern int YES;
 extern int NO;
 
+extern float clocktime;
+
 extern tolayer2(struct rtpkt packet);
 
 struct distance_table 

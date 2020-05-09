@@ -63,6 +63,11 @@ void sendcost(node_class* node_ptr)
 void rtinit(node_class* node_ptr, const int* initcost, const int* neighbour)
 {
     int i = 0;
+
+    char str[50];
+    sprintf(str, "Time = %.3f. rtinit%d() has been called!\n", clocktime, node_ptr->id);
+    hightlight_printf(str);
+
     for (i = 0; i < 4; ++i)
     {
         (node_ptr->dt).costs[i][i] = initcost[i];
@@ -79,10 +84,14 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
     int sid = 0;
     int modified = 0;
 
+    char str[50];
+    sprintf(str, "Time = %.3f. rtupdate%d() has been called!\n", clocktime, node_ptr->id);
+
     if (rcvdpkt->destid != node_ptr->id)
     {
         return;
     }
+
     updatemincost(node_ptr);    // Just in case.
 
     sid = rcvdpkt->sourceid;
@@ -98,7 +107,7 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
     if (modified)
     {
         char str[50];
-        sprintf(str, "Distance Table for Node %d has been modified!\n", node_ptr->id);
+        sprintf(str, "Time = %.3f. Distance Table for Node %d has been modified!\n", clocktime, node_ptr->id);
         hightlight_printf(str);
         printdt(node_ptr);
     }
@@ -123,6 +132,9 @@ void printdt(node_class* node_ptr)
 
 void linkhandler(node_class* node_ptr, int linkid, int newcost)
 {
+    char str[50];
+    sprintf(str, "Time = %.3f. linkhandler%d() has been called!\n", clocktime, node_ptr->id);    
+    
     if (!(node_ptr->neighbour)[linkid])
     {
         return; // The link do not exist. There must be some mistakes. Ignore.
