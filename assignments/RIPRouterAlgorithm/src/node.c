@@ -58,7 +58,7 @@ void rtinit(node_class* node_ptr, const int* initcost, const int* neighbour)
 {
     int i = 0;
 
-    printf("\033[31mTime = %.3f. rtinit%d() has been called!\033[0m\n", clocktime, node_ptr->id);
+    printf("\033[31mTime = %.3f. rtinit%d() has been called.\033[0m\n", clocktime, node_ptr->id);
 
     for (i = 0; i < 4; ++i)
     {
@@ -76,12 +76,14 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
     int sid = 0;
     int modified = 0;
 
-    printf("\033[31mTime = %.3f. rtupdate%d() has been called!\033[0m\n", clocktime, node_ptr->id);
+    printf("\033[31mTime = %.3f. rtupdate%d() has been called.\033[0m\n", clocktime, node_ptr->id);
 
     if (rcvdpkt->destid != node_ptr->id)
     {
         return;
     }
+
+    printf("\033[31mTime = %.3f. Node %d received packet from Node %d.\033[0m\n", clocktime, node_ptr->id, rcvdpkt->sourceid);
 
     updatemincost(node_ptr);    // Just in case.
 
@@ -121,7 +123,7 @@ void printdt(node_class* node_ptr)
 
 void linkhandler(node_class* node_ptr, int linkid, int newcost)
 {
-    printf("\033[31mTime = %.3f. linkhandler%d() has been called!\033[0m\n", clocktime, node_ptr->id);    
+    printf("\033[31mTime = %.3f. linkhandler%d() has been called.\033[0m\n", clocktime, node_ptr->id);    
 
     if (!(node_ptr->neighbour)[linkid])
     {
