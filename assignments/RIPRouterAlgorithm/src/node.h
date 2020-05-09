@@ -1,3 +1,6 @@
+#ifndef __NODE_H_
+#define __NODE_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
@@ -39,3 +42,5 @@ void rtinit(node_class* node_ptr, const int* initcost, const int* neighbour);
 void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt);
 void printdt(node_class* node_ptr);
 void linkhandler(node_class* node_ptr, int linkid, int newcost);
+
+#endif
