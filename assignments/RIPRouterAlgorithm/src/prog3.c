@@ -86,7 +86,7 @@ main()
         if (evlist!=NULL)
            evlist->prev=NULL;
         if (TRACE>1) {
-          printf("MAIN: rcv event, t=%.3f, at %d",
+          printf("MAIN: rcv event, t=%.3f, at %d\n",
                           eventptr->evtime,eventptr->eventity);
           if (eventptr->evtype == FROM_LAYER2 ) {
 	    printf(" src:%2d,",eventptr->rtpktptr->sourceid);
