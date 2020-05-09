@@ -64,8 +64,8 @@ void rtinit(node_class* node_ptr, const int* initcost, const int* neighbour)
 {
     int i = 0;
 
-    char str[50];
-    sprintf(str, "Time = %.3f. rtinit%d() has been called!\n", clocktime, node_ptr->id);
+    char info[50];
+    sprintf(info, "Time = %.3f. rtinit%d() has been called!\n", clocktime, node_ptr->id);
     hightlight_printf(str);
 
     for (i = 0; i < 4; ++i)
@@ -84,8 +84,8 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
     int sid = 0;
     int modified = 0;
 
-    char str[50];
-    sprintf(str, "Time = %.3f. rtupdate%d() has been called!\n", clocktime, node_ptr->id);
+    char info[50];
+    sprintf(info, "Time = %.3f. rtupdate%d() has been called!\n", clocktime, node_ptr->id);
 
     if (rcvdpkt->destid != node_ptr->id)
     {
@@ -132,8 +132,8 @@ void printdt(node_class* node_ptr)
 
 void linkhandler(node_class* node_ptr, int linkid, int newcost)
 {
-    char str[50];
-    sprintf(str, "Time = %.3f. linkhandler%d() has been called!\n", clocktime, node_ptr->id);    
+    char info[50];
+    sprintf(info, "Time = %.3f. linkhandler%d() has been called!\n", clocktime, node_ptr->id);    
     
     if (!(node_ptr->neighbour)[linkid])
     {
