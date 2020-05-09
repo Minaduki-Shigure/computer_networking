@@ -114,7 +114,7 @@ void printdt(node_class* node_ptr)
 {
     int i, j = 0;
 
-    printf("  dest | via     \n");
+    printf("  dest| via     \n");
 
     printf("   D%d |", node_ptr->id);
 
