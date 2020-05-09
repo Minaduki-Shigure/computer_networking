@@ -20,29 +20,24 @@ void node_constructor(node_class* node_ptr, int node_id)
     }
 }
 
-void panicreset(node_class* node_ptr)
-{
-    int bias = 0;
-    for (bias = 0; bias < 4; ++bias)
-    {
-        node_ptr->mincost[bias] = 999;
-    }
-    printf("\033[31mTime = %.3f. Panic at Node %d caused by link cost changes. Reseting mincost.\033[0m\n", clocktime, node_ptr->id);
-}
-
 int updatemincost(node_class* node_ptr)
 {
     int i, j = 0;
     int updated = 0;
+    int newmincost[4] = {999, 999, 999, 999};
+
     for (i = 0; i < 4; ++i)
     {
         for (j = 0; j < 4; ++j)
         {
-            if ((node_ptr->dt).costs[i][j] < node_ptr->mincost[i])
+            if ((node_ptr->dt).costs[i][j] < newmincost[i])
             {
-                node_ptr->mincost[i] = (node_ptr->dt).costs[i][j];
-                updated = 1;
+                newmincost[i] = (node_ptr->dt).costs[i][j];
             }
+        }
+        if (node_ptr->mincost[i] != newmincost[i])
+        {
+            update = 1;
         }
     }
     return updated;
@@ -186,8 +181,6 @@ void linkhandler(node_class* node_ptr, int linkid, int newcost)
     }
     printf("\033[31mTime = %.3f. Distance Table for Node %d has been modified!\033[0m\n", clocktime, node_ptr->id);
     printdt(node_ptr);
-
-    panicreset(node_ptr);
 
     if (updatemincost(node_ptr))
     {
