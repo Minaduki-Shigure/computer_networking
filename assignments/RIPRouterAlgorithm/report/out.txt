@@ -1,0 +1,692 @@
+Enter TRACE:[31mTime = 0.000. rtinit0() has been called.[0m
+[31mTime = 0.000. Node 0 sent packet to Node 1 : 0 1 3 7[0m
+[31mTime = 0.000. Node 0 sent packet to Node 2 : 0 1 3 7[0m
+[31mTime = 0.000. Node 0 sent packet to Node 3 : 0 1 3 7[0m
+[31mTime = 0.000. rtinit1() has been called.[0m
+[31mTime = 0.000. Node 1 sent packet to Node 0 : 1 0 1 999[0m
+[31mTime = 0.000. Node 1 sent packet to Node 2 : 1 0 1 999[0m
+[31mTime = 0.000. rtinit2() has been called.[0m
+[31mTime = 0.000. Node 2 sent packet to Node 0 : 3 1 0 2[0m
+[31mTime = 0.000. Node 2 sent packet to Node 1 : 3 1 0 2[0m
+[31mTime = 0.000. Node 2 sent packet to Node 3 : 3 1 0 2[0m
+[31mTime = 0.000. rtinit3() has been called.[0m
+[31mTime = 0.000. Node 3 sent packet to Node 0 : 7 999 2 0[0m
+[31mTime = 0.000. Node 3 sent packet to Node 2 : 7 999 2 0[0m
+MAIN: rcv event, t=0.947, at 3
+ src: 0, dest: 3, contents:   0   1   3   7
+[31mTime = 0.947. rtupdate3() has been called.[0m
+[31mTime = 0.947. Node 3 received packet from Node 0.[0m
+[31mTime = 0.947. Distance Table for Node 3 has been modified![0m
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7  999
+     1|    8  999
+     2|   10    2
+[31mTime = 0.947. Node 3 sent packet to Node 0 : 7 8 2 0[0m
+[31mTime = 0.947. Node 3 sent packet to Node 2 : 7 8 2 0[0m
+MAIN: rcv event, t=0.992, at 0
+ src: 1, dest: 0, contents:   1   0   1 999
+[31mTime = 0.992. rtupdate0() has been called.[0m
+[31mTime = 0.992. Node 0 received packet from Node 1.[0m
+[31mTime = 0.992. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1  999  999
+     2|    2    3  999
+     3|  1000  999    7
+[31mTime = 0.992. Node 0 sent packet to Node 1 : 0 1 2 7[0m
+[31mTime = 0.992. Node 0 sent packet to Node 2 : 0 1 2 7[0m
+[31mTime = 0.992. Node 0 sent packet to Node 3 : 0 1 2 7[0m
+MAIN: rcv event, t=1.209, at 3
+ src: 2, dest: 3, contents:   3   1   0   2
+[31mTime = 1.209. rtupdate3() has been called.[0m
+[31mTime = 1.209. Node 3 received packet from Node 2.[0m
+[31mTime = 1.209. Distance Table for Node 3 has been modified![0m
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    5
+     1|    8    3
+     2|   10    2
+[31mTime = 1.209. Node 3 sent packet to Node 0 : 5 3 2 0[0m
+[31mTime = 1.209. Node 3 sent packet to Node 2 : 5 3 2 0[0m
+MAIN: rcv event, t=1.276, at 3
+ src: 0, dest: 3, contents:   0   1   2   7
+[31mTime = 1.276. rtupdate3() has been called.[0m
+[31mTime = 1.276. Node 3 received packet from Node 0.[0m
+[31mTime = 1.276. Distance Table for Node 3 has been modified![0m
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    5
+     1|    8    3
+     2|    9    2
+MAIN: rcv event, t=1.642, at 2
+ src: 0, dest: 2, contents:   0   1   3   7
+[31mTime = 1.642. rtupdate2() has been called.[0m
+[31mTime = 1.642. Node 2 received packet from Node 0.[0m
+[31mTime = 1.642. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3  999  999
+     1|    4    1  999
+     3|   10  999    2
+MAIN: rcv event, t=1.871, at 1
+ src: 0, dest: 1, contents:   0   1   3   7
+[31mTime = 1.871. rtupdate1() has been called.[0m
+[31mTime = 1.871. Node 1 received packet from Node 0.[0m
+[31mTime = 1.871. Distance Table for Node 1 has been modified![0m
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1  999
+     2|    4    1
+     3|    8  999
+[31mTime = 1.871. Node 1 sent packet to Node 0 : 1 0 1 8[0m
+[31mTime = 1.871. Node 1 sent packet to Node 2 : 1 0 1 8[0m
+MAIN: rcv event, t=2.166, at 2
+ src: 1, dest: 2, contents:   1   0   1 999
+[31mTime = 2.166. rtupdate2() has been called.[0m
+[31mTime = 2.166. Node 2 received packet from Node 1.[0m
+[31mTime = 2.166. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2  999
+     1|    4    1  999
+     3|   10  1000    2
+[31mTime = 2.166. Node 2 sent packet to Node 0 : 2 1 0 2[0m
+[31mTime = 2.166. Node 2 sent packet to Node 1 : 2 1 0 2[0m
+[31mTime = 2.166. Node 2 sent packet to Node 3 : 2 1 0 2[0m
+MAIN: rcv event, t=2.407, at 0
+ src: 2, dest: 0, contents:   3   1   0   2
+[31mTime = 2.407. rtupdate0() has been called.[0m
+[31mTime = 2.407. Node 0 received packet from Node 2.[0m
+[31mTime = 2.407. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4  999
+     2|    2    3  999
+     3|  1000    5    7
+[31mTime = 2.407. Node 0 sent packet to Node 1 : 0 1 2 5[0m
+[31mTime = 2.407. Node 0 sent packet to Node 2 : 0 1 2 5[0m
+[31mTime = 2.407. Node 0 sent packet to Node 3 : 0 1 2 5[0m
+MAIN: rcv event, t=2.421, at 2
+ src: 3, dest: 2, contents:   7 999   2   0
+[31mTime = 2.421. rtupdate2() has been called.[0m
+[31mTime = 2.421. Node 2 received packet from Node 3.[0m
+[31mTime = 2.421. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    9
+     1|    4    1  1001
+     3|   10  1000    2
+MAIN: rcv event, t=2.811, at 1
+ src: 2, dest: 1, contents:   3   1   0   2
+[31mTime = 2.811. rtupdate1() has been called.[0m
+[31mTime = 2.811. Node 1 received packet from Node 2.[0m
+[31mTime = 2.811. Distance Table for Node 1 has been modified![0m
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1    4
+     2|    4    1
+     3|    8    3
+[31mTime = 2.811. Node 1 sent packet to Node 0 : 1 0 1 3[0m
+[31mTime = 2.811. Node 1 sent packet to Node 2 : 1 0 1 3[0m
+MAIN: rcv event, t=3.293, at 2
+ src: 3, dest: 2, contents:   7   8   2   0
+[31mTime = 3.293. rtupdate2() has been called.[0m
+[31mTime = 3.293. Node 2 received packet from Node 3.[0m
+[31mTime = 3.293. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    9
+     1|    4    1   10
+     3|   10  1000    2
+MAIN: rcv event, t=3.602, at 3
+ src: 2, dest: 3, contents:   2   1   0   2
+[31mTime = 3.602. rtupdate3() has been called.[0m
+[31mTime = 3.602. Node 3 received packet from Node 2.[0m
+[31mTime = 3.602. Distance Table for Node 3 has been modified![0m
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    4
+     1|    8    3
+     2|    9    2
+[31mTime = 3.602. Node 3 sent packet to Node 0 : 4 3 2 0[0m
+[31mTime = 3.602. Node 3 sent packet to Node 2 : 4 3 2 0[0m
+MAIN: rcv event, t=4.063, at 2
+ src: 0, dest: 2, contents:   0   1   2   7
+[31mTime = 4.063. rtupdate2() has been called.[0m
+[31mTime = 4.063. Node 2 received packet from Node 0.[0m
+[31mTime = 4.063. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    9
+     1|    4    1   10
+     3|   10  1000    2
+MAIN: rcv event, t=4.104, at 0
+ src: 3, dest: 0, contents:   7 999   2   0
+[31mTime = 4.104. rtupdate0() has been called.[0m
+[31mTime = 4.104. Node 0 received packet from Node 3.[0m
+[31mTime = 4.104. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4  1006
+     2|    2    3    9
+     3|  1000    5    7
+MAIN: rcv event, t=4.169, at 2
+ src: 3, dest: 2, contents:   5   3   2   0
+[31mTime = 4.169. rtupdate2() has been called.[0m
+[31mTime = 4.169. Node 2 received packet from Node 3.[0m
+[31mTime = 4.169. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    7
+     1|    4    1    5
+     3|   10  1000    2
+MAIN: rcv event, t=4.330, at 0
+ src: 3, dest: 0, contents:   7   8   2   0
+[31mTime = 4.330. rtupdate0() has been called.[0m
+[31mTime = 4.330. Node 0 received packet from Node 3.[0m
+[31mTime = 4.330. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   15
+     2|    2    3    9
+     3|  1000    5    7
+MAIN: rcv event, t=4.643, at 1
+ src: 0, dest: 1, contents:   0   1   2   7
+[31mTime = 4.643. rtupdate1() has been called.[0m
+[31mTime = 4.643. Node 1 received packet from Node 0.[0m
+[31mTime = 4.643. Distance Table for Node 1 has been modified![0m
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1    4
+     2|    3    1
+     3|    8    3
+MAIN: rcv event, t=5.213, at 0
+ src: 3, dest: 0, contents:   5   3   2   0
+[31mTime = 5.213. rtupdate0() has been called.[0m
+[31mTime = 5.213. Node 0 received packet from Node 3.[0m
+[31mTime = 5.213. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|  1000    5    7
+MAIN: rcv event, t=5.384, at 3
+ src: 0, dest: 3, contents:   0   1   2   5
+[31mTime = 5.384. rtupdate3() has been called.[0m
+[31mTime = 5.384. Node 3 received packet from Node 0.[0m
+[31mTime = 5.384. Distance Table for Node 3 has been modified![0m
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    4
+     1|    8    3
+     2|    9    2
+MAIN: rcv event, t=5.820, at 1
+ src: 2, dest: 1, contents:   2   1   0   2
+[31mTime = 5.820. rtupdate1() has been called.[0m
+[31mTime = 5.820. Node 1 received packet from Node 2.[0m
+[31mTime = 5.820. Distance Table for Node 1 has been modified![0m
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1    3
+     2|    3    1
+     3|    8    3
+MAIN: rcv event, t=6.042, at 2
+ src: 1, dest: 2, contents:   1   0   1   8
+[31mTime = 6.042. rtupdate2() has been called.[0m
+[31mTime = 6.042. Node 2 received packet from Node 1.[0m
+[31mTime = 6.042. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    7
+     1|    4    1    5
+     3|   10    9    2
+MAIN: rcv event, t=6.071, at 0
+ src: 1, dest: 0, contents:   1   0   1   8
+[31mTime = 6.071. rtupdate0() has been called.[0m
+[31mTime = 6.071. Node 0 received packet from Node 1.[0m
+[31mTime = 6.071. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|    9    5    7
+MAIN: rcv event, t=6.532, at 1
+ src: 0, dest: 1, contents:   0   1   2   5
+[31mTime = 6.532. rtupdate1() has been called.[0m
+[31mTime = 6.532. Node 1 received packet from Node 0.[0m
+[31mTime = 6.532. Distance Table for Node 1 has been modified![0m
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1    3
+     2|    3    1
+     3|    6    3
+MAIN: rcv event, t=7.021, at 0
+ src: 2, dest: 0, contents:   2   1   0   2
+[31mTime = 7.021. rtupdate0() has been called.[0m
+[31mTime = 7.021. Node 0 received packet from Node 2.[0m
+[31mTime = 7.021. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|    9    5    7
+MAIN: rcv event, t=7.160, at 2
+ src: 0, dest: 2, contents:   0   1   2   5
+[31mTime = 7.160. rtupdate2() has been called.[0m
+[31mTime = 7.160. Node 2 received packet from Node 0.[0m
+[31mTime = 7.160. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    7
+     1|    4    1    5
+     3|    8    9    2
+MAIN: rcv event, t=7.405, at 0
+ src: 1, dest: 0, contents:   1   0   1   3
+[31mTime = 7.405. rtupdate0() has been called.[0m
+[31mTime = 7.405. Node 0 received packet from Node 1.[0m
+[31mTime = 7.405. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|    4    5    7
+[31mTime = 7.405. Node 0 sent packet to Node 1 : 0 1 2 4[0m
+[31mTime = 7.405. Node 0 sent packet to Node 2 : 0 1 2 4[0m
+[31mTime = 7.405. Node 0 sent packet to Node 3 : 0 1 2 4[0m
+MAIN: rcv event, t=7.579, at 3
+ src: 0, dest: 3, contents:   0   1   2   4
+[31mTime = 7.579. rtupdate3() has been called.[0m
+[31mTime = 7.579. Node 3 received packet from Node 0.[0m
+[31mTime = 7.579. Distance Table for Node 3 has been modified![0m
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    4
+     1|    8    3
+     2|    9    2
+MAIN: rcv event, t=7.941, at 1
+ src: 0, dest: 1, contents:   0   1   2   4
+[31mTime = 7.941. rtupdate1() has been called.[0m
+[31mTime = 7.941. Node 1 received packet from Node 0.[0m
+[31mTime = 7.941. Distance Table for Node 1 has been modified![0m
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1    3
+     2|    3    1
+     3|    5    3
+MAIN: rcv event, t=8.086, at 0
+ src: 3, dest: 0, contents:   4   3   2   0
+[31mTime = 8.086. rtupdate0() has been called.[0m
+[31mTime = 8.086. Node 0 received packet from Node 3.[0m
+[31mTime = 8.086. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|    4    5    7
+MAIN: rcv event, t=8.639, at 2
+ src: 1, dest: 2, contents:   1   0   1   3
+[31mTime = 8.639. rtupdate2() has been called.[0m
+[31mTime = 8.639. Node 2 received packet from Node 1.[0m
+[31mTime = 8.639. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    7
+     1|    4    1    5
+     3|    8    4    2
+MAIN: rcv event, t=8.943, at 2
+ src: 3, dest: 2, contents:   4   3   2   0
+[31mTime = 8.943. rtupdate2() has been called.[0m
+[31mTime = 8.943. Node 2 received packet from Node 3.[0m
+[31mTime = 8.943. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    6
+     1|    4    1    5
+     3|    8    4    2
+MAIN: rcv event, t=9.960, at 2
+ src: 0, dest: 2, contents:   0   1   2   4
+[31mTime = 9.960. rtupdate2() has been called.[0m
+[31mTime = 9.960. Node 2 received packet from Node 0.[0m
+[31mTime = 9.960. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    6
+     1|    4    1    5
+     3|    7    4    2
+MAIN: rcv event, t=10000.000, at -1
+[31mTime = 10000.000. linkhandler0() has been called.[0m
+[31mTime = 10000.000. Node 0 detected the new cost of link to Node 1 is now 20.[0m
+[31mTime = 10000.000. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|   20    4   10
+     2|   21    3    9
+     3|   23    5    7
+[31mTime = 10000.000. Node 0 sent packet to Node 1 : 0 4 3 5[0m
+[31mTime = 10000.000. Node 0 sent packet to Node 2 : 0 4 3 5[0m
+[31mTime = 10000.000. Node 0 sent packet to Node 3 : 0 4 3 5[0m
+[31mTime = 10000.000. linkhandler1() has been called.[0m
+[31mTime = 10000.000. Node 1 detected the new cost of link to Node 0 is now 20.[0m
+[31mTime = 10000.000. Distance Table for Node 1 has been modified![0m
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|   20    3
+     2|   22    1
+     3|   24    3
+[31mTime = 10000.000. Node 1 sent packet to Node 0 : 3 0 1 3[0m
+[31mTime = 10000.000. Node 1 sent packet to Node 2 : 3 0 1 3[0m
+MAIN: rcv event, t=10000.178, at 1
+ src: 0, dest: 1, contents:   0   4   3   5
+[31mTime = 10000.178. rtupdate1() has been called.[0m
+[31mTime = 10000.178. Node 1 received packet from Node 0.[0m
+[31mTime = 10000.178. Distance Table for Node 1 has been modified![0m
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|   20    3
+     2|   23    1
+     3|   25    3
+MAIN: rcv event, t=10000.702, at 0
+ src: 1, dest: 0, contents:   3   0   1   3
+[31mTime = 10000.702. rtupdate0() has been called.[0m
+[31mTime = 10000.702. Node 0 received packet from Node 1.[0m
+[31mTime = 10000.702. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|   20    4   10
+     2|   21    3    9
+     3|   23    5    7
+MAIN: rcv event, t=10001.166, at 3
+ src: 0, dest: 3, contents:   0   4   3   5
+[31mTime = 10001.166. rtupdate3() has been called.[0m
+[31mTime = 10001.166. Node 3 received packet from Node 0.[0m
+[31mTime = 10001.166. Distance Table for Node 3 has been modified![0m
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    4
+     1|   11    3
+     2|   10    2
+MAIN: rcv event, t=10001.964, at 2
+ src: 0, dest: 2, contents:   0   4   3   5
+[31mTime = 10001.964. rtupdate2() has been called.[0m
+[31mTime = 10001.964. Node 2 received packet from Node 0.[0m
+[31mTime = 10001.964. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    6
+     1|    7    1    5
+     3|    8    4    2
+MAIN: rcv event, t=10003.342, at 2
+ src: 1, dest: 2, contents:   3   0   1   3
+[31mTime = 10003.342. rtupdate2() has been called.[0m
+[31mTime = 10003.342. Node 2 received packet from Node 1.[0m
+[31mTime = 10003.342. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    4    6
+     1|    7    1    5
+     3|    8    4    2
+[31mTime = 10003.342. Node 2 sent packet to Node 0 : 3 1 0 2[0m
+[31mTime = 10003.342. Node 2 sent packet to Node 1 : 3 1 0 2[0m
+[31mTime = 10003.342. Node 2 sent packet to Node 3 : 3 1 0 2[0m
+MAIN: rcv event, t=10003.448, at 0
+ src: 2, dest: 0, contents:   3   1   0   2
+[31mTime = 10003.448. rtupdate0() has been called.[0m
+[31mTime = 10003.448. Node 0 received packet from Node 2.[0m
+[31mTime = 10003.448. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|   20    4   10
+     2|   21    3    9
+     3|   23    5    7
+MAIN: rcv event, t=10004.307, at 1
+ src: 2, dest: 1, contents:   3   1   0   2
+[31mTime = 10004.307. rtupdate1() has been called.[0m
+[31mTime = 10004.307. Node 1 received packet from Node 2.[0m
+[31mTime = 10004.307. Distance Table for Node 1 has been modified![0m
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|   20    4
+     2|   23    1
+     3|   25    3
+[31mTime = 10004.307. Node 1 sent packet to Node 0 : 4 0 1 3[0m
+[31mTime = 10004.307. Node 1 sent packet to Node 2 : 4 0 1 3[0m
+MAIN: rcv event, t=10004.417, at 3
+ src: 2, dest: 3, contents:   3   1   0   2
+[31mTime = 10004.417. rtupdate3() has been called.[0m
+[31mTime = 10004.417. Node 3 received packet from Node 2.[0m
+[31mTime = 10004.417. Distance Table for Node 3 has been modified![0m
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    5
+     1|   11    3
+     2|   10    2
+[31mTime = 10004.417. Node 3 sent packet to Node 0 : 5 3 2 0[0m
+[31mTime = 10004.417. Node 3 sent packet to Node 2 : 5 3 2 0[0m
+MAIN: rcv event, t=10004.669, at 0
+ src: 1, dest: 0, contents:   4   0   1   3
+[31mTime = 10004.669. rtupdate0() has been called.[0m
+[31mTime = 10004.669. Node 0 received packet from Node 1.[0m
+[31mTime = 10004.669. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|   20    4   10
+     2|   21    3    9
+     3|   23    5    7
+MAIN: rcv event, t=10005.498, at 2
+ src: 1, dest: 2, contents:   4   0   1   3
+[31mTime = 10005.498. rtupdate2() has been called.[0m
+[31mTime = 10005.498. Node 2 received packet from Node 1.[0m
+[31mTime = 10005.498. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    5    6
+     1|    7    1    5
+     3|    8    4    2
+MAIN: rcv event, t=10005.692, at 2
+ src: 3, dest: 2, contents:   5   3   2   0
+[31mTime = 10005.692. rtupdate2() has been called.[0m
+[31mTime = 10005.692. Node 2 received packet from Node 3.[0m
+[31mTime = 10005.692. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    5    7
+     1|    7    1    5
+     3|    8    4    2
+MAIN: rcv event, t=10006.615, at 0
+ src: 3, dest: 0, contents:   5   3   2   0
+[31mTime = 10006.615. rtupdate0() has been called.[0m
+[31mTime = 10006.615. Node 0 received packet from Node 3.[0m
+[31mTime = 10006.615. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|   20    4   10
+     2|   21    3    9
+     3|   23    5    7
+MAIN: rcv event, t=20000.000, at 0
+[31mTime = 20000.000. linkhandler0() has been called.[0m
+[31mTime = 20000.000. Node 0 detected the new cost of link to Node 1 is now 1.[0m
+[31mTime = 20000.000. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|    4    5    7
+[31mTime = 20000.000. Node 0 sent packet to Node 1 : 0 1 2 4[0m
+[31mTime = 20000.000. Node 0 sent packet to Node 2 : 0 1 2 4[0m
+[31mTime = 20000.000. Node 0 sent packet to Node 3 : 0 1 2 4[0m
+[31mTime = 20000.000. linkhandler1() has been called.[0m
+[31mTime = 20000.000. Node 1 detected the new cost of link to Node 0 is now 1.[0m
+[31mTime = 20000.000. Distance Table for Node 1 has been modified![0m
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1    4
+     2|    4    1
+     3|    6    3
+[31mTime = 20000.000. Node 1 sent packet to Node 0 : 1 0 1 3[0m
+[31mTime = 20000.000. Node 1 sent packet to Node 2 : 1 0 1 3[0m
+MAIN: rcv event, t=20000.014, at 2
+ src: 0, dest: 2, contents:   0   1   2   4
+[31mTime = 20000.014. rtupdate2() has been called.[0m
+[31mTime = 20000.014. Node 2 received packet from Node 0.[0m
+[31mTime = 20000.014. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    5    7
+     1|    4    1    5
+     3|    7    4    2
+MAIN: rcv event, t=20000.068, at 0
+ src: 1, dest: 0, contents:   1   0   1   3
+[31mTime = 20000.068. rtupdate0() has been called.[0m
+[31mTime = 20000.068. Node 0 received packet from Node 1.[0m
+[31mTime = 20000.068. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|    4    5    7
+MAIN: rcv event, t=20000.885, at 2
+ src: 1, dest: 2, contents:   1   0   1   3
+[31mTime = 20000.885. rtupdate2() has been called.[0m
+[31mTime = 20000.885. Node 2 received packet from Node 1.[0m
+[31mTime = 20000.885. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    7
+     1|    4    1    5
+     3|    7    4    2
+[31mTime = 20000.885. Node 2 sent packet to Node 0 : 2 1 0 2[0m
+[31mTime = 20000.885. Node 2 sent packet to Node 1 : 2 1 0 2[0m
+[31mTime = 20000.885. Node 2 sent packet to Node 3 : 2 1 0 2[0m
+MAIN: rcv event, t=20001.076, at 3
+ src: 0, dest: 3, contents:   0   1   2   4
+[31mTime = 20001.076. rtupdate3() has been called.[0m
+[31mTime = 20001.076. Node 3 received packet from Node 0.[0m
+[31mTime = 20001.076. Distance Table for Node 3 has been modified![0m
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    5
+     1|    8    3
+     2|    9    2
+MAIN: rcv event, t=20001.125, at 3
+ src: 2, dest: 3, contents:   2   1   0   2
+[31mTime = 20001.125. rtupdate3() has been called.[0m
+[31mTime = 20001.125. Node 3 received packet from Node 2.[0m
+[31mTime = 20001.125. Distance Table for Node 3 has been modified![0m
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    4
+     1|    8    3
+     2|    9    2
+[31mTime = 20001.125. Node 3 sent packet to Node 0 : 4 3 2 0[0m
+[31mTime = 20001.125. Node 3 sent packet to Node 2 : 4 3 2 0[0m
+MAIN: rcv event, t=20001.834, at 0
+ src: 2, dest: 0, contents:   2   1   0   2
+[31mTime = 20001.834. rtupdate0() has been called.[0m
+[31mTime = 20001.834. Node 0 received packet from Node 2.[0m
+[31mTime = 20001.834. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|    4    5    7
+MAIN: rcv event, t=20001.961, at 1
+ src: 0, dest: 1, contents:   0   1   2   4
+[31mTime = 20001.961. rtupdate1() has been called.[0m
+[31mTime = 20001.961. Node 1 received packet from Node 0.[0m
+[31mTime = 20001.961. Distance Table for Node 1 has been modified![0m
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1    4
+     2|    3    1
+     3|    5    3
+MAIN: rcv event, t=20002.221, at 0
+ src: 3, dest: 0, contents:   4   3   2   0
+[31mTime = 20002.221. rtupdate0() has been called.[0m
+[31mTime = 20002.221. Node 0 received packet from Node 3.[0m
+[31mTime = 20002.221. Distance Table for Node 0 has been modified![0m
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|    4    5    7
+MAIN: rcv event, t=20002.854, at 2
+ src: 3, dest: 2, contents:   4   3   2   0
+[31mTime = 20002.854. rtupdate2() has been called.[0m
+[31mTime = 20002.854. Node 2 received packet from Node 3.[0m
+[31mTime = 20002.854. Distance Table for Node 2 has been modified![0m
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    6
+     1|    4    1    5
+     3|    7    4    2
+MAIN: rcv event, t=20002.979, at 1
+ src: 2, dest: 1, contents:   2   1   0   2
+[31mTime = 20002.979. rtupdate1() has been called.[0m
+[31mTime = 20002.979. Node 1 received packet from Node 2.[0m
+[31mTime = 20002.979. Distance Table for Node 1 has been modified![0m
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1    3
+     2|    3    1
+     3|    5    3
+
+Simulator terminated at t=20002.978516, no packets in medium

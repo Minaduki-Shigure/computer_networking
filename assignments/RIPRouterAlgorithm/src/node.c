@@ -3,6 +3,9 @@
 // I was trying to make the number of the nodes adjustable
 // when I realized it was fixed in the test bench.
 // So, forget it.
+// (1 day later) I have to admit that I have already modified
+// the test bench which should not be modified, but I'm not going
+// to kill myself by trying to make the test bench also adjustable.
 void node_constructor(node_class* node_ptr, int node_id)
 {
     node_ptr->id = node_id;
@@ -10,11 +13,11 @@ void node_constructor(node_class* node_ptr, int node_id)
     int bias = 0;
     
     ptr = (node_ptr->dt).costs;
-    for (bias = 0; bias < 16; ++bias)
+    for (bias = 0; bias < NODESUM * NODESUM; ++bias)
     {
         ptr[bias] = 999;   // Anyway, it's a bias.
     }
-    for (bias = 0; bias < 4; ++bias)
+    for (bias = 0; bias < NODESUM; ++bias)
     {
         node_ptr->mincost[bias] = 999;
     }
@@ -24,11 +27,17 @@ int updatemincost(node_class* node_ptr)
 {
     int i, j = 0;
     int updated = 0;
-    int newmincost[4] = {999, 999, 999, 999};
+    int* newmincost;
 
-    for (i = 0; i < 4; ++i)
+    newmincost = (int*)malloc(NODESUM * sizeof(int));
+    for (i = 0; i < NODESUM; ++i)
     {
-        for (j = 0; j < 4; ++j)
+        newmincost[i] = 999;
+    }
+
+    for (i = 0; i < NODESUM; ++i)
+    {
+        for (j = 0; j < NODESUM; ++j)
         {
             if ((node_ptr->dt).costs[i][j] < newmincost[i])
             {
@@ -49,8 +58,8 @@ void sendcost(node_class* node_ptr)
     struct rtpkt packet;
     int i = 0;
     packet.sourceid = node_ptr->id;
-    memcpy(packet.mincost, node_ptr->mincost, 4 * sizeof(int));
-    for (i = 0; i < 4; ++i)
+    memcpy(packet.mincost, node_ptr->mincost, NODESUM * sizeof(int));
+    for (i = 0; i < NODESUM; ++i)
     {
         if ((node_ptr->neighbour)[i])
         {
@@ -67,7 +76,7 @@ void rtinit(node_class* node_ptr, const int* initcost, const int* neighbour)
 
     printf("\033[31mTime = %.3f. rtinit%d() has been called.\033[0m\n", clocktime, node_ptr->id);
 
-    for (i = 0; i < 4; ++i)
+    for (i = 0; i < NODESUM; ++i)
     {
         (node_ptr->dt).costs[i][i] = initcost[i];
         (node_ptr->neighbour)[i] = neighbour[i];
@@ -95,7 +104,7 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
     updatemincost(node_ptr);    // Just in case.
 
     sid = rcvdpkt->sourceid;
-    for (i = 0; i < 4; ++i)
+    for (i = 0; i < NODESUM; ++i)
     {
         if ((node_ptr->dt).costs[i][sid] != rcvdpkt->mincost[i] + (node_ptr->dt).costs[sid][sid])
         {
@@ -125,7 +134,7 @@ void printdt(node_class* node_ptr)
 
     printf("   D%d |", node_ptr->id);
 
-    for (j = 0; j < 4; ++j)
+    for (j = 0; j < NODESUM; ++j)
     {
         if ((node_ptr->neighbour)[j])
         {
@@ -135,7 +144,7 @@ void printdt(node_class* node_ptr)
     printf(" \n");
 
     printf("  ----|");
-    for (j = 0; j < 4; ++j)
+    for (j = 0; j < NODESUM; ++j)
     {
         if ((node_ptr->neighbour)[j])
         {
@@ -144,12 +153,12 @@ void printdt(node_class* node_ptr)
     }
     printf("\n");
 
-    for (i = 0; i < 4; ++i)
+    for (i = 0; i < NODESUM; ++i)
     {
         if (i != node_ptr->id)
         {
             printf("     %d|", i);
-            for (j = 0; j < 4; ++j)
+            for (j = 0; j < NODESUM; ++j)
             {
                 if ((node_ptr->neighbour)[j])
                 {
@@ -176,7 +185,7 @@ void linkhandler(node_class* node_ptr, int linkid, int newcost)
     int oldcost = (node_ptr->dt).costs[linkid][linkid];
 
     updatemincost(node_ptr);    // Just in case.   
-    for (i = 0; i < 4; ++i)
+    for (i = 0; i < NODESUM; ++i)
     {
         (node_ptr->dt).costs[i][linkid] = (node_ptr->dt).costs[i][linkid] - oldcost + newcost;
     }
