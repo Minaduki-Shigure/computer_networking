@@ -94,9 +94,8 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
 
 void printdt(node_class* node_ptr)
 {
-    printf("        dt for node %d     \n", node_ptr->id);
     printf("                via     \n");
-    printf("   D0 |    0    1     2     3 \n");
+    printf("   D%d |    0    1     2     3 \n", node_ptr->id);
     printf("  ----|-----------------------\n");
     printf("     0|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[0][0], (node_ptr->dt).costs[0][1], (node_ptr->dt).costs[0][2], (node_ptr->dt).costs[0][3]);
     printf("     1|  %3d  %3d   %3d   %3d\n", (node_ptr->dt).costs[1][0], (node_ptr->dt).costs[1][1], (node_ptr->dt).costs[1][2], (node_ptr->dt).costs[1][3]);
