@@ -1,5 +1,11 @@
 #include "node.h"
 
+void hightlight_printf(const char* content)
+{
+    printf("\033[31m%s \033[0m", content);
+    return;
+}
+
 // I was trying to make the number of the nodes adjustable
 // when I realized it was fixed in the test bench.
 // So, forget it.
@@ -91,6 +97,9 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
 
     if (modified)
     {
+        char str[50];
+        sprintf(str, "Distance Table for Node %d has been modified!\n", node_ptr->id);
+        hightlight_printf(str);
         printdt(node_ptr);
     }
 

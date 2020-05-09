@@ -28,6 +28,7 @@ typedef struct
     int neighbour[4];
 } node_class;
 
+void hightlight_printf(const char* content);
 void node_constructor(node_class* node_ptr, int node_id);
 int updatemincost(node_class* node_ptr);
 void sendcost(node_class* node_ptr);
