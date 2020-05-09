@@ -114,666 +114,366 @@ void A_input(struct pkt packet)
 即丢包率为0.1，损毁率为0.3，发送10个包（两个实体总共10个），结果（部分）如下：
 
 ```plain
-minaduki@mininet-vm:~/computer_networking/assignments/ReliableTransportProtocol$ ./prog2 10 0.1 0.3 1000 2
------  Stop and Wait Network Simulator Version 1.1 --------
-
-the number of messages to simulate: 10
-packet loss probability: 0.100000
-packet corruption probability: 0.300000
-average time between messages from sender's layer5: 1000.000000
-TRACE: 2
-
-EVENT time: 1870.573975,  type: 1, fromlayer5  entity: 1
-B_sender_output: Added message. Allocated SEQ = 1.
-window_send: Sending SEQ = 1.
-
-EVENT time: 1877.939087,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Received packet SEQ = 1. Sending ACK = 1.
-A_receiver_input: Content: aaaaaaaaaaaaaaaaaaa
-          TOLAYER3: packet being corrupted
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 1886.575195,  type: 2, fromlayer3  entity: 1
-B_sender_input: Packet corrupted. Dropping packet.
-
-EVENT time: 1890.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 1899.818481,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 1920.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being lost
-
-EVENT time: 1960.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 1962.052368,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 2010.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 2015.846191,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 2070.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 2074.776611,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 2140.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 2143.304199,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 2220.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 2222.940430,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 2310.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being lost
-
-EVENT time: 2410.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being lost
-
-EVENT time: 2520.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 2526.822998,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 2640.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 2642.054688,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 2770.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 2773.204590,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 2817.214111,  type: 1, fromlayer5  entity: 0
-A_sender_output: Added message. Allocated SEQ = 1.
-window_send: Sending SEQ = 1.
-
-EVENT time: 2818.272461,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Received packet SEQ = 1. Sending ACK = 1.
-B_receiver_input: Content: bbbbbbbbbbbbbbbbbbb
-          TOLAYER3: packet being lost
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 2837.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 2842.488281,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 2867.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being lost
-
-EVENT time: 2907.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 2910.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being lost
-
-EVENT time: 2915.995361,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 2957.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being lost
-
-EVENT time: 3017.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 3022.033447,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 3060.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 3064.235840,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 3087.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 3096.125000,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 3167.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 3172.831787,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 3220.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 3222.605713,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 3257.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 3264.957031,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 3357.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 3363.905518,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 3390.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 3396.046631,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 3467.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 3472.601074,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 3570.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 3572.278320,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 3587.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being lost
-
-EVENT time: 3717.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 3725.171875,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 3760.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 3764.966553,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 3857.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 3862.879150,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 3960.573975,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 3967.270752,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 4007.214111,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 4016.702393,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 4167.213867,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 4169.719238,  type: 2, fromlayer3  entity: 1
-B_sender_input: Packet corrupted. Dropping packet.
-
-EVENT time: 4170.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 4178.354004,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 4337.213867,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 4343.114746,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 4390.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 4399.397461,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 4517.213867,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 4518.797852,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 4620.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 4625.821289,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 4707.213867,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 4716.157715,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 4763.713867,  type: 1, fromlayer5  entity: 0
-A_sender_output: Added message. Allocated SEQ = 2.
-window_send: Sending SEQ = 2.
-          TOLAYER3: packet being lost
-
-EVENT time: 4860.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being lost
-
-EVENT time: 4907.213867,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-A_timerinterrupt: Timeout for SEQ = 2. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 4910.210449,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 4911.359375,  type: 2, fromlayer3  entity: 1
-B_sender_input: Packet corrupted. Dropping packet.
-
-EVENT time: 5110.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 5117.213867,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 1. Resending.
-A_timerinterrupt: Timeout for SEQ = 2. Resending.
-
-EVENT time: 5118.142578,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 5121.387695,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 1 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 5128.989746,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Received packet SEQ = 2. Sending ACK = 2.
-B_receiver_input: Content: ccccccccccccccccccc
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 5138.120605,  type: 2, fromlayer3  entity: 0
-A_sender_input: Got ACK = 2.
-
-EVENT time: 5370.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-
-EVENT time: 5374.952148,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 5529.646484,  type: 1, fromlayer5  entity: 1
-B_sender_output: Added message. Allocated SEQ = 2.
-window_send: Sending SEQ = 2.
-
-EVENT time: 5535.588867,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Received packet SEQ = 2. Sending ACK = 2.
-A_receiver_input: Content: ddddddddddddddddddd
-          TOLAYER3: packet being lost
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 5640.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-B_timerinterrupt: Timeout for SEQ = 2. Resending.
-
-EVENT time: 5647.405273,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 5656.605469,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 2 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 5920.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-B_timerinterrupt: Timeout for SEQ = 2. Resending.
-
-EVENT time: 5929.923340,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 5933.185547,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 2 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 6210.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-B_timerinterrupt: Timeout for SEQ = 2. Resending.
-
-EVENT time: 6217.374512,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 6219.862793,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 2 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 6405.025879,  type: 1, fromlayer5  entity: 0
-A_sender_output: Added message. Allocated SEQ = 3.
-window_send: Sending SEQ = 3.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 6406.431641,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Received packet SEQ = 3. Sending ACK = 3.
-B_receiver_input: Content: Zeeeeeeeeeeeeeeeeee
-          TOLAYER3: packet being lost
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 6510.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-B_timerinterrupt: Timeout for SEQ = 2. Resending.
-
-EVENT time: 6520.288574,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 6523.303223,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 2 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 6625.025879,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 3. Resending.
-
-EVENT time: 6630.758789,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 3 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 6820.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-B_timerinterrupt: Timeout for SEQ = 2. Resending.
-          TOLAYER3: packet being lost
-
-EVENT time: 6830.178711,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 6855.025879,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 3. Resending.
-
-EVENT time: 6863.607422,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 3 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 7095.025879,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 3. Resending.
-
-EVENT time: 7098.439941,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 3 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 7140.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being corrupted
-B_timerinterrupt: Timeout for SEQ = 2. Resending.
-          TOLAYER3: packet being lost
-
-EVENT time: 7145.767090,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 1 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 7345.025879,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 3. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 7349.457031,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 3 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 7470.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being lost
-B_timerinterrupt: Timeout for SEQ = 2. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 7479.569824,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 2 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 7605.025879,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 3. Resending.
-
-EVENT time: 7612.045898,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 3 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 7628.443359,  type: 1, fromlayer5  entity: 1
-B_sender_output: Added message. Allocated SEQ = 3.
-window_send: Sending SEQ = 3.
-          TOLAYER3: packet being lost
-
-EVENT time: 7645.067383,  type: 1, fromlayer5  entity: 1
-B_sender_output: Added message. Allocated SEQ = 4.
-window_send: Sending SEQ = 4.
-          TOLAYER3: packet being lost
-
-EVENT time: 7810.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 1. Resending.
-          TOLAYER3: packet being lost
-B_timerinterrupt: Timeout for SEQ = 2. Resending.
-B_timerinterrupt: Timeout for SEQ = 3. Resending.
-          TOLAYER3: packet being corrupted
-B_timerinterrupt: Timeout for SEQ = 4. Resending.
-
-EVENT time: 7816.737305,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 2 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 7822.151855,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Packet corrupted. Sending last ACK = 2.
-A_sender_input: Packet corrupted. Dropping packet.
-
-EVENT time: 7828.472168,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Unexpected SEQ = 4 received. Sending last ACK = 2.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 7829.170410,  type: 2, fromlayer3  entity: 1
-B_sender_input: Got ACK = 2.
-
-EVENT time: 7837.292969,  type: 2, fromlayer3  entity: 1
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 7875.025879,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 3. Resending.
-
-EVENT time: 7884.396484,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 3 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 8155.025879,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 3. Resending.
-
-EVENT time: 8158.062988,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 3 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 8160.574219,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 3. Resending.
-B_timerinterrupt: Timeout for SEQ = 4. Resending.
-
-EVENT time: 8168.292480,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Received packet SEQ = 3. Sending ACK = 3.
-A_receiver_input: Content: fffffffffffffffffff
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 8176.425293,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Received packet SEQ = 4. Sending ACK = 4.
-A_receiver_input: Content: ggggggggggggggggggg
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 8176.444336,  type: 2, fromlayer3  entity: 1
-B_sender_input: Got ACK = 3.
-
-EVENT time: 8180.759277,  type: 2, fromlayer3  entity: 1
-B_sender_input: Got ACK = 4.
-
-EVENT time: 8445.025391,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 3. Resending.
-
-EVENT time: 8453.754883,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 3 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 8745.025391,  type: 0, timerinterrupt   entity: 0
-A_timerinterrupt: Timeout for SEQ = 3. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 8754.703125,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Duplicated SEQ = 3 received. Dropped.
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 9036.344727,  type: 1, fromlayer5  entity: 0
-A_sender_output: Added message. Allocated SEQ = 4.
-window_send: Sending SEQ = 4.
-
-EVENT time: 9043.182617,  type: 2, fromlayer3  entity: 1
-B_receiver_input: Received packet SEQ = 4. Sending ACK = 4.
-B_receiver_input: Content: hhhhhhhhhhhhhhhhhhh
-B_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 9046.638672,  type: 2, fromlayer3  entity: 0
-A_sender_input: Got ACK = 4.
-
-EVENT time: 9267.890625,  type: 1, fromlayer5  entity: 1
-B_sender_output: Added message. Allocated SEQ = 5.
-window_send: Sending SEQ = 5.
-
-EVENT time: 9270.275391,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Received packet SEQ = 5. Sending ACK = 5.
-A_receiver_input: Content: iiiiiiiiiiiiiiiiiii
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 9280.012695,  type: 2, fromlayer3  entity: 1
-B_sender_input: Got ACK = 5.
-
-EVENT time: 9958.363281,  type: 1, fromlayer5  entity: 1
-B_sender_output: Added message. Allocated SEQ = 6.
-window_send: Sending SEQ = 6.
-
-EVENT time: 9963.712891,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Received packet SEQ = 6. Sending ACK = 6.
-A_receiver_input: Content: jjjjjjjjjjjjjjjjjjj
-          TOLAYER3: packet being lost
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 10318.363281,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 6. Resending.
-          TOLAYER3: packet being lost
-
-EVENT time: 10688.363281,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 6. Resending.
-
-EVENT time: 10693.135742,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 6 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 11068.363281,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 6. Resending.
-
-EVENT time: 11071.865234,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 6 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 11458.363281,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 6. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 11461.542969,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 6 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 11858.363281,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 6. Resending.
-
-EVENT time: 11866.335938,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Duplicated SEQ = 6 received. Dropped.
-A_sender_input: Received duplicate ACK. Packet ignored.
-
-EVENT time: 12268.363281,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 6. Resending.
-          TOLAYER3: packet being lost
-
-EVENT time: 12688.363281,  type: 0, timerinterrupt   entity: 1
-B_timerinterrupt: Timeout for SEQ = 6. Resending.
-          TOLAYER3: packet being corrupted
-
-EVENT time: 12690.823242,  type: 2, fromlayer3  entity: 0
-A_receiver_input: Packet corrupted. Sending last ACK = 6.
-A_sender_input: Packet corrupted. Dropping packet.
-
-EVENT time: 12693.951172,  type: 2, fromlayer3  entity: 1
-B_sender_input: Got ACK = 6.
- Simulator terminated at time 12693.951172
- after sending 10 msgs from layer5
-
+minaduki@mininet-vm:~/computer_networking/assignments/RIPRouterAlgorithm$ ./prog3 
+Enter TRACE:2
+Time = 0.000. rtinit0() has been called.
+Time = 0.000. Node 0 sent packet to Node 1 : 0 1 3 7
+Time = 0.000. Node 0 sent packet to Node 2 : 0 1 3 7
+Time = 0.000. Node 0 sent packet to Node 3 : 0 1 3 7
+Time = 0.000. rtinit1() has been called.
+Time = 0.000. Node 1 sent packet to Node 0 : 1 0 1 999
+Time = 0.000. Node 1 sent packet to Node 2 : 1 0 1 999
+Time = 0.000. rtinit2() has been called.
+Time = 0.000. Node 2 sent packet to Node 0 : 3 1 0 2
+Time = 0.000. Node 2 sent packet to Node 1 : 3 1 0 2
+Time = 0.000. Node 2 sent packet to Node 3 : 3 1 0 2
+Time = 0.000. rtinit3() has been called.
+Time = 0.000. Node 3 sent packet to Node 0 : 7 999 2 0
+Time = 0.000. Node 3 sent packet to Node 2 : 7 999 2 0
+MAIN: rcv event, t=0.947, at 3 src: 0, dest: 3, contents:   0   1   3   7
+Time = 0.947. rtupdate3() has been called.
+Time = 0.947. Node 3 received packet from Node 0.
+Time = 0.947. Distance Table for Node 3 has been modified!
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7  999
+     1|    8  999
+     2|   10    2
+Time = 0.947. Node 3 sent packet to Node 0 : 7 8 2 0
+Time = 0.947. Node 3 sent packet to Node 2 : 7 8 2 0
+MAIN: rcv event, t=0.992, at 0 src: 1, dest: 0, contents:   1   0   1 999
+Time = 0.992. rtupdate0() has been called.
+Time = 0.992. Node 0 received packet from Node 1.
+Time = 0.992. Distance Table for Node 0 has been modified!
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1  999  999
+     2|    2    3  999
+     3|  1000  999    7
+Time = 0.992. Node 0 sent packet to Node 1 : 0 1 2 7
+Time = 0.992. Node 0 sent packet to Node 2 : 0 1 2 7
+Time = 0.992. Node 0 sent packet to Node 3 : 0 1 2 7
+MAIN: rcv event, t=1.209, at 3 src: 2, dest: 3, contents:   3   1   0   2
+Time = 1.209. rtupdate3() has been called.
+Time = 1.209. Node 3 received packet from Node 2.
+Time = 1.209. Distance Table for Node 3 has been modified!
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    5
+     1|    8    3
+     2|   10    2
+Time = 1.209. Node 3 sent packet to Node 0 : 5 3 2 0
+Time = 1.209. Node 3 sent packet to Node 2 : 5 3 2 0
+MAIN: rcv event, t=1.276, at 3 src: 0, dest: 3, contents:   0   1   2   7
+Time = 1.276. rtupdate3() has been called.
+Time = 1.276. Node 3 received packet from Node 0.
+Time = 1.276. Distance Table for Node 3 has been modified!
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    5
+     1|    8    3
+     2|    9    2
+MAIN: rcv event, t=1.642, at 2 src: 0, dest: 2, contents:   0   1   3   7
+Time = 1.642. rtupdate2() has been called.
+Time = 1.642. Node 2 received packet from Node 0.
+Time = 1.642. Distance Table for Node 2 has been modified!
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3  999  999
+     1|    4    1  999
+     3|   10  999    2
+MAIN: rcv event, t=1.871, at 1 src: 0, dest: 1, contents:   0   1   3   7
+Time = 1.871. rtupdate1() has been called.
+Time = 1.871. Node 1 received packet from Node 0.
+Time = 1.871. Distance Table for Node 1 has been modified!
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1  999
+     2|    4    1
+     3|    8  999
+Time = 1.871. Node 1 sent packet to Node 0 : 1 0 1 8
+Time = 1.871. Node 1 sent packet to Node 2 : 1 0 1 8
+MAIN: rcv event, t=2.166, at 2 src: 1, dest: 2, contents:   1   0   1 999
+Time = 2.166. rtupdate2() has been called.
+Time = 2.166. Node 2 received packet from Node 1.
+Time = 2.166. Distance Table for Node 2 has been modified!
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2  999
+     1|    4    1  999
+     3|   10  1000    2
+Time = 2.166. Node 2 sent packet to Node 0 : 2 1 0 2
+Time = 2.166. Node 2 sent packet to Node 1 : 2 1 0 2
+Time = 2.166. Node 2 sent packet to Node 3 : 2 1 0 2
+MAIN: rcv event, t=2.407, at 0 src: 2, dest: 0, contents:   3   1   0   2
+Time = 2.407. rtupdate0() has been called.
+Time = 2.407. Node 0 received packet from Node 2.
+Time = 2.407. Distance Table for Node 0 has been modified!
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4  999
+     2|    2    3  999
+     3|  1000    5    7
+Time = 2.407. Node 0 sent packet to Node 1 : 0 1 2 5
+Time = 2.407. Node 0 sent packet to Node 2 : 0 1 2 5
+Time = 2.407. Node 0 sent packet to Node 3 : 0 1 2 5
+MAIN: rcv event, t=2.421, at 2 src: 3, dest: 2, contents:   7 999   2   0
+Time = 2.421. rtupdate2() has been called.
+Time = 2.421. Node 2 received packet from Node 3.
+Time = 2.421. Distance Table for Node 2 has been modified!
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    9
+     1|    4    1  1001
+     3|   10  1000    2
+MAIN: rcv event, t=2.811, at 1 src: 2, dest: 1, contents:   3   1   0   2
+Time = 2.811. rtupdate1() has been called.
+Time = 2.811. Node 1 received packet from Node 2.
+Time = 2.811. Distance Table for Node 1 has been modified!
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1    4
+     2|    4    1
+     3|    8    3
+Time = 2.811. Node 1 sent packet to Node 0 : 1 0 1 3
+Time = 2.811. Node 1 sent packet to Node 2 : 1 0 1 3
+MAIN: rcv event, t=3.293, at 2 src: 3, dest: 2, contents:   7   8   2   0
+Time = 3.293. rtupdate2() has been called.
+Time = 3.293. Node 2 received packet from Node 3.
+Time = 3.293. Distance Table for Node 2 has been modified!
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    9
+     1|    4    1   10
+     3|   10  1000    2
+MAIN: rcv event, t=3.602, at 3 src: 2, dest: 3, contents:   2   1   0   2
+Time = 3.602. rtupdate3() has been called.
+Time = 3.602. Node 3 received packet from Node 2.
+Time = 3.602. Distance Table for Node 3 has been modified!
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    4
+     1|    8    3
+     2|    9    2
+Time = 3.602. Node 3 sent packet to Node 0 : 4 3 2 0
+Time = 3.602. Node 3 sent packet to Node 2 : 4 3 2 0
+MAIN: rcv event, t=4.063, at 2 src: 0, dest: 2, contents:   0   1   2   7
+Time = 4.063. rtupdate2() has been called.
+Time = 4.063. Node 2 received packet from Node 0.
+Time = 4.063. Distance Table for Node 2 has been modified!
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    9
+     1|    4    1   10
+     3|   10  1000    2
+MAIN: rcv event, t=4.104, at 0 src: 3, dest: 0, contents:   7 999   2   0
+Time = 4.104. rtupdate0() has been called.
+Time = 4.104. Node 0 received packet from Node 3.
+Time = 4.104. Distance Table for Node 0 has been modified!
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4  1006
+     2|    2    3    9
+     3|  1000    5    7
+MAIN: rcv event, t=4.169, at 2 src: 3, dest: 2, contents:   5   3   2   0
+Time = 4.169. rtupdate2() has been called.
+Time = 4.169. Node 2 received packet from Node 3.
+Time = 4.169. Distance Table for Node 2 has been modified!
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    7
+     1|    4    1    5
+     3|   10  1000    2
+MAIN: rcv event, t=4.330, at 0 src: 3, dest: 0, contents:   7   8   2   0
+Time = 4.330. rtupdate0() has been called.
+Time = 4.330. Node 0 received packet from Node 3.
+Time = 4.330. Distance Table for Node 0 has been modified!
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   15
+     2|    2    3    9
+     3|  1000    5    7
+MAIN: rcv event, t=4.643, at 1 src: 0, dest: 1, contents:   0   1   2   7
+Time = 4.643. rtupdate1() has been called.
+Time = 4.643. Node 1 received packet from Node 0.
+Time = 4.643. Distance Table for Node 1 has been modified!
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1    4
+     2|    3    1
+     3|    8    3
+MAIN: rcv event, t=5.213, at 0 src: 3, dest: 0, contents:   5   3   2   0
+Time = 5.213. rtupdate0() has been called.
+Time = 5.213. Node 0 received packet from Node 3.
+Time = 5.213. Distance Table for Node 0 has been modified!
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|  1000    5    7
+MAIN: rcv event, t=5.384, at 3 src: 0, dest: 3, contents:   0   1   2   5
+Time = 5.384. rtupdate3() has been called.
+Time = 5.384. Node 3 received packet from Node 0.
+Time = 5.384. Distance Table for Node 3 has been modified!
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    4
+     1|    8    3
+     2|    9    2
+MAIN: rcv event, t=5.820, at 1 src: 2, dest: 1, contents:   2   1   0   2
+Time = 5.820. rtupdate1() has been called.
+Time = 5.820. Node 1 received packet from Node 2.
+Time = 5.820. Distance Table for Node 1 has been modified!
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1    3
+     2|    3    1
+     3|    8    3
+MAIN: rcv event, t=6.042, at 2 src: 1, dest: 2, contents:   1   0   1   8
+Time = 6.042. rtupdate2() has been called.
+Time = 6.042. Node 2 received packet from Node 1.
+Time = 6.042. Distance Table for Node 2 has been modified!
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    7
+     1|    4    1    5
+     3|   10    9    2
+MAIN: rcv event, t=6.071, at 0 src: 1, dest: 0, contents:   1   0   1   8
+Time = 6.071. rtupdate0() has been called.
+Time = 6.071. Node 0 received packet from Node 1.
+Time = 6.071. Distance Table for Node 0 has been modified!
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|    9    5    7
+MAIN: rcv event, t=6.532, at 1 src: 0, dest: 1, contents:   0   1   2   5
+Time = 6.532. rtupdate1() has been called.
+Time = 6.532. Node 1 received packet from Node 0.
+Time = 6.532. Distance Table for Node 1 has been modified!
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1    3
+     2|    3    1
+     3|    6    3
+MAIN: rcv event, t=7.021, at 0 src: 2, dest: 0, contents:   2   1   0   2
+Time = 7.021. rtupdate0() has been called.
+Time = 7.021. Node 0 received packet from Node 2.
+Time = 7.021. Distance Table for Node 0 has been modified!
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|    9    5    7
+MAIN: rcv event, t=7.160, at 2 src: 0, dest: 2, contents:   0   1   2   5
+Time = 7.160. rtupdate2() has been called.
+Time = 7.160. Node 2 received packet from Node 0.
+Time = 7.160. Distance Table for Node 2 has been modified!
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    7
+     1|    4    1    5
+     3|    8    9    2
+MAIN: rcv event, t=7.405, at 0 src: 1, dest: 0, contents:   1   0   1   3
+Time = 7.405. rtupdate0() has been called.
+Time = 7.405. Node 0 received packet from Node 1.
+Time = 7.405. Distance Table for Node 0 has been modified!
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|    4    5    7
+Time = 7.405. Node 0 sent packet to Node 1 : 0 1 2 4
+Time = 7.405. Node 0 sent packet to Node 2 : 0 1 2 4
+Time = 7.405. Node 0 sent packet to Node 3 : 0 1 2 4
+MAIN: rcv event, t=7.579, at 3 src: 0, dest: 3, contents:   0   1   2   4
+Time = 7.579. rtupdate3() has been called.
+Time = 7.579. Node 3 received packet from Node 0.
+Time = 7.579. Distance Table for Node 3 has been modified!
+  dest|     via     
+   D3 |    0    2 
+  ----|----------
+     0|    7    4
+     1|    8    3
+     2|    9    2
+MAIN: rcv event, t=7.941, at 1 src: 0, dest: 1, contents:   0   1   2   4
+Time = 7.941. rtupdate1() has been called.
+Time = 7.941. Node 1 received packet from Node 0.
+Time = 7.941. Distance Table for Node 1 has been modified!
+  dest|     via     
+   D1 |    0    2 
+  ----|----------
+     0|    1    3
+     2|    3    1
+     3|    5    3
+MAIN: rcv event, t=8.086, at 0 src: 3, dest: 0, contents:   4   3   2   0
+Time = 8.086. rtupdate0() has been called.
+Time = 8.086. Node 0 received packet from Node 3.
+Time = 8.086. Distance Table for Node 0 has been modified!
+  dest|     via     
+   D0 |    1    2    3 
+  ----|---------------
+     1|    1    4   10
+     2|    2    3    9
+     3|    4    5    7
+MAIN: rcv event, t=8.639, at 2 src: 1, dest: 2, contents:   1   0   1   3
+Time = 8.639. rtupdate2() has been called.
+Time = 8.639. Node 2 received packet from Node 1.
+Time = 8.639. Distance Table for Node 2 has been modified!
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    7
+     1|    4    1    5
+     3|    8    4    2
+MAIN: rcv event, t=8.943, at 2 src: 3, dest: 2, contents:   4   3   2   0
+Time = 8.943. rtupdate2() has been called.
+Time = 8.943. Node 2 received packet from Node 3.
+Time = 8.943. Distance Table for Node 2 has been modified!
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    6
+     1|    4    1    5
+     3|    8    4    2
+MAIN: rcv event, t=9.960, at 2 src: 0, dest: 2, contents:   0   1   2   4
+Time = 9.960. rtupdate2() has been called.
+Time = 9.960. Node 2 received packet from Node 0.
+Time = 9.960. Distance Table for Node 2 has been modified!
+  dest|     via     
+   D2 |    0    1    3 
+  ----|---------------
+     0|    3    2    6
+     1|    4    1    5
+     3|    7    4    2
+
+Simulator terminated at t=9.959651, no packets in medium
 ```
 
 ## 小结

@@ -163,5 +163,22 @@ void linkhandler(node_class* node_ptr, int linkid, int newcost)
     {
         return; // The link do not exist. There must be some mistakes. Ignore.
     }
-    
+
+    printf("\033[31mTime = %.3f. Node %d detected the new cost of link to Node %d is now %d.\033[0m\n", clocktime, node_ptr->id, linkid, newcost);
+
+    int i, j = 0;
+    int oldcost = (node_ptr->dt).costs[linkid][linkid];
+
+    updatemincost(node_ptr);    // Just in case.   
+    for (i = 0; i < 4; ++i)
+    {
+        (node_ptr->dt).costs[i][linkid] = (node_ptr->dt).costs[i][linkid] - oldcost + newcost;
+    }
+    printf("\033[31mTime = %.3f. Distance Table for Node %d has been modified!\033[0m\n", clocktime, node_ptr->id);
+    printdt(node_ptr);
+
+    if (updatemincost(node_ptr))
+    {
+        sendcost(node_ptr);
+    }
 }
