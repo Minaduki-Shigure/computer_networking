@@ -35,9 +35,9 @@ int updatemincost(node_class* node_ptr)
                 newmincost[i] = (node_ptr->dt).costs[i][j];
             }
         }
-        if (node_ptr->mincost[i] != newmincost[i])
+        if ((node_ptr->mincost)[i] != newmincost[i])
         {
-            node_ptr->mincost[i] != newmincost[i];
+            (node_ptr->mincost)[i] = newmincost[i];
             updated = 1;
         }
     }
