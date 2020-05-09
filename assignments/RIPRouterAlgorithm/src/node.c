@@ -1,11 +1,5 @@
 #include "node.h"
 
-void hightlight_printf(const char* content)
-{
-    printf("\033[31m%s \033[0m", content);
-    return;
-}
-
 // I was trying to make the number of the nodes adjustable
 // when I realized it was fixed in the test bench.
 // So, forget it.
@@ -64,10 +58,7 @@ void rtinit(node_class* node_ptr, const int* initcost, const int* neighbour)
 {
     int i = 0;
 
-    char* info = (char*)malloc(50 * sizeof(char));
-    sprintf(info, "Time = %.3f. rtinit%d() has been called!\n", clocktime, node_ptr->id);
-    hightlight_printf(info);
-    free(info);
+    printf("\033[31mTime = %.3f. rtinit%d() has been called!\033[0m\n", clocktime, node_ptr->id);
 
     for (i = 0; i < 4; ++i)
     {
@@ -85,10 +76,7 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
     int sid = 0;
     int modified = 0;
 
-    char* info = (char*)malloc(50 * sizeof(char));
-    sprintf(info, "Time = %.3f. rtupdate%d() has been called!\n", clocktime, node_ptr->id);
-    hightlight_printf(info);
-    free(info);
+    printf("\033[31mTime = %.3f. rtupdate%d() has been called!\033[0m\n", clocktime, node_ptr->id);
 
     if (rcvdpkt->destid != node_ptr->id)
     {
@@ -109,9 +97,7 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
 
     if (modified)
     {
-        char str[50];
-        sprintf(str, "Time = %.3f. Distance Table for Node %d has been modified!\n", clocktime, node_ptr->id);
-        hightlight_printf(str);
+        printf("\033[31mTime = %.3f. Distance Table for Node %d has been modified!\033[0m\n", clocktime, node_ptr->id);
         printdt(node_ptr);
     }
 
@@ -135,10 +121,7 @@ void printdt(node_class* node_ptr)
 
 void linkhandler(node_class* node_ptr, int linkid, int newcost)
 {
-    char* info = (char*)malloc(50 * sizeof(char));
-    sprintf(info, "Time = %.3f. linkhandler%d() has been called!\n", clocktime, node_ptr->id);    
-    hightlight_printf(info);
-    free(info);
+    printf("\033[31mTime = %.3f. linkhandler%d() has been called!\033[0m\n", clocktime, node_ptr->id);    
 
     if (!(node_ptr->neighbour)[linkid])
     {
