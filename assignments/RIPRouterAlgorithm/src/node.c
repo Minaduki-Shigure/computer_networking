@@ -64,9 +64,10 @@ void rtinit(node_class* node_ptr, const int* initcost, const int* neighbour)
 {
     int i = 0;
 
-    char info[50];
+    char* info = (char*)malloc(50 * sizeof(char));
     sprintf(info, "Time = %.3f. rtinit%d() has been called!\n", clocktime, node_ptr->id);
     hightlight_printf(info);
+    free(info);
 
     for (i = 0; i < 4; ++i)
     {
@@ -84,9 +85,10 @@ void rtupdate(node_class* node_ptr, struct rtpkt* rcvdpkt)
     int sid = 0;
     int modified = 0;
 
-    char info[50];
+    char* info = (char*)malloc(50 * sizeof(char));
     sprintf(info, "Time = %.3f. rtupdate%d() has been called!\n", clocktime, node_ptr->id);
     hightlight_printf(info);
+    free(info);
 
     if (rcvdpkt->destid != node_ptr->id)
     {
@@ -133,10 +135,11 @@ void printdt(node_class* node_ptr)
 
 void linkhandler(node_class* node_ptr, int linkid, int newcost)
 {
-    char info[50];
+    char* info = (char*)malloc(50 * sizeof(char));
     sprintf(info, "Time = %.3f. linkhandler%d() has been called!\n", clocktime, node_ptr->id);    
     hightlight_printf(info);
-    
+    free(info);
+
     if (!(node_ptr->neighbour)[linkid])
     {
         return; // The link do not exist. There must be some mistakes. Ignore.
