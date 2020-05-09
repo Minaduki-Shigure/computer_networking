@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <memory.h>
 
-#define DEBUG 1
-
 extern struct rtpkt {
     int sourceid;       /* id of sending router sending this pkt */
     int destid;         /* id of router to which pkt being sent 

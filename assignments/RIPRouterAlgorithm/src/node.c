@@ -35,10 +35,8 @@ int updatemincost(node_class* node_ptr)
             }
         }
     }
-    return updated;
-    #if DEBUG
     printdt(node_ptr);
-    #endif
+    return updated;
 }
 
 void sendcost(node_class* node_ptr)
@@ -108,5 +106,9 @@ void printdt(node_class* node_ptr)
 
 void linkhandler(node_class* node_ptr, int linkid, int newcost)
 {
-
+    if (!(node_ptr->neighbour)[linkid])
+    {
+        return; // The link do not exist. There must be some mistakes. Ignore.
+    }
+    
 }

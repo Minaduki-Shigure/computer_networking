@@ -20,12 +20,3 @@ void printdt3(void)
 {
     printdt(&Node3);
 }
-
-void linkhandler3(int linkid, int newcost) 
-/* called when cost from 3 to linkid changes from current value to newcost*/
-/* You can leave this routine empty if you're an undergrad. If you want */
-/* to use this routine, you'll need to change the value of the LINKCHANGE */
-/* constant definition in prog3.c from 0 to 1 */
-{
-    linkhandler(&Node3, linkid, newcost);
-}
