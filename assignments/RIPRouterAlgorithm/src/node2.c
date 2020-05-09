@@ -1,7 +1,7 @@
 #include "node.h"
 
-int initcost2[NODESUM] = {3, 1, 0, 2};
-int neighbour2[NODESUM] = {1, 1, 0, 1};
+extern int initcost2[NODESUM];
+extern int neighbour2[NODESUM];
 
 node_class Node2;
 
