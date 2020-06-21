@@ -161,6 +161,200 @@ def act_like_switch (self, packet, packet_in):
 
 函数的具体实现思路是：当一个封包被发送到控制器时，控制器首先将封包来源的端口和MAC地址记录到字典中，然后判断封包目的地的MAC地址是否在字典中，如果不在，则泛洪，否则会命令交换机将封包送到对应的端口，同时下发一条新的流到交换机，流的内容即为在对应的输入端口、源MAC和目标MAC的情况下，使用哪个端口发送的指令，这样在流过期之前，交换机就可以不依赖控制器完成转发。
 
+然后修改函数_handle_PacketIn中的内容，将act_like_hub修改为act_like_switch，这样控制器就会调用act_like_switch函数的内容，实现交换机的功能配置。
+
+启动POX控制器和mininet，首先还是使用h1节点ping节点h2，控制器日志如下：
+
+```plain
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : 00:00:00:00:00:01
+DEBUG:misc.of_tutorial:Port for MAC ff:ff:ff:ff:ff:ff unknown. Flooding.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : 00:00:00:00:00:02
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  00:00:00:00:00:02
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  00:00:00:00:00:01
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : 00:00:00:00:00:01
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  00:00:00:00:00:01
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  00:00:00:00:00:02
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+```
+
+控制器根据节点上交的封包信息自动“学习”了端口对应的MAC地址，同时也根据学习的MAC地址完成了流的下发，这样对于后续的同样封包，交换机节点就可以自行处理。
+
+在h1节点的终端处可见，第一个封包的RTT很长，这是因为交换机中没有配置好的流，因此需要把包发送给控制器进行判断，而后续封包的RTT急剧下降，就是因为控制器下发了流之后，交换机不再需要与控制器通讯就可以完成转发，因此转发的时间降低了。
+![h1 @ h1 ping h2 w/ s1 as switch](./pic/1-5.png)
+
+同时在h2与h3节点中也可以看到，h2节点收到了所有有关的封包，而h3节点只收到了一开始泛洪的一个ARP包。
+![h2 & h3 @ h1 ping h2 w/ s1 as switch](./pic/1-6.png)
+
+使用iperf命令测试网络性能，性能相比集线器模式下有巨大的提升，同时tcpdump也显示，所有的数据均被发送到了h3节点，h2节点仅收到了一些ARP包，这里不再赘述。
+
+```plain
+*** Iperf: testing TCP bandwidth between h1 and h3 
+*** Results: ['10.5 Gbits/sec', '10.5 Gbits/sec']
+```
+
+之前提到，tcpdump会影响网络性能，关闭tcpdump后，iperf测试结果有所提升：
+
+```plain
+*** Iperf: testing TCP bandwidth between h1 and h3 
+*** Results: ['29.1 Gbits/sec', '29.1 Gbits/sec']
+```
+
+### 多节点支持
+
+使用mininet建立一个有两个交换机和两个终端的拓扑。
+
+```bash
+$ sudo mn --topo linear --switch ovsk --controller remote
+```
+
+由于POX会为每个接入的交换机分别创建一个控制器实例，因此POX的代码不需要修改，可以在POX日志中看见有两个交换机接入：
+
+```plain
+INFO:openflow.of_01:[00-00-00-00-00-02 2] connected
+DEBUG:misc.of_tutorial:Controlling [00-00-00-00-00-02 2]
+INFO:openflow.of_01:[00-00-00-00-00-01 3] connected
+DEBUG:misc.of_tutorial:Controlling [00-00-00-00-00-01 3]
+```
+
+使用mininet终端的`pingall`命令测试，两台主机之间网络畅通，同时也可以看见POX日志中进行了学习和流的下发。不过POX日志中没有对不同的交换机进行区分，因此看起来比较混乱。
+
+```plain
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Port for MAC ff:ff:ff:ff:ff:ff unknown. Flooding.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Port for MAC ff:ff:ff:ff:ff:ff unknown. Flooding.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+```
+
+最后，使用iperf测试一下网络性能：
+
+```plain
+*** Iperf: testing TCP bandwidth between h1 and h2 
+*** Results: ['27.4 Gbits/sec', '27.4 Gbits/sec']
+```
+
+网络性能符合预期。
+
 ## 小结
 
-通过此次试验，充分了解了可靠传输协议的基本实现方式，对网络传输层有了基本的认识。
+通过此次实验，对OpenFlow的基本概念有了详细的理解，同时对自学习交换机的工作原理有了直观的认识，同时也初步掌握了一些工具比如mininet和X11转发的使用方法。
