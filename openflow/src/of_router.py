@@ -33,6 +33,7 @@ from pox.lib.packet.ethernet import ethernet
 from pox.lib.packet.ipv4 import ipv4
 from pox.lib.packet.arp import arp
 from pox.lib.packet.icmp import icmp, echo
+from pox.lib.packet.icmp import TYPE_ECHO_REQUEST, TYPE_ECHO_REPLY, TYPE_DEST_UNREACH, CODE_UNREACH_NET, CODE_UNREACH_HOST
 from pox.lib.addresses import IPAddr, EthAddr
 from pox.lib.util import str_to_bool, dpid_to_str
 
@@ -61,15 +62,17 @@ class Router (object):
     # ARP cache
     self.arp_cache = {}
     # Init ARP record for router itself.
-    self.arp_cache['10.0.1.1'] = '00:00:00:00:00:01'
-    self.arp_cache['10.0.2.1'] = '00:00:00:00:00:02'
-    self.arp_cache['10.0.3.1'] = '00:00:00:00:00:03'
+    self.arp_cache['10.0.1.1'] = 'FF:FF:FF:FF:FF:01'
+    self.arp_cache['10.0.2.1'] = 'FF:FF:FF:FF:FF:02'
+    self.arp_cache['10.0.3.1'] = 'FF:FF:FF:FF:FF:03'
+    # Default MAC that mininet use starts from all zeros, 
+    # so we start ours from all ones.
 
     # Routing table (create a structure with all of the information statically assigned)
     self.routing_table = {}
-    self.routing_table['10.0.1.0/24'] = {'host_ip': '10.0.1.100', 'gateway_ip': '10.0.1.1', 'port': 1}
-    self.routing_table['10.0.2.0/24'] = {'host_ip': '10.0.2.100', 'gateway_ip': '10.0.2.1', 'port': 2}
-    self.routing_table['10.0.3.0/24'] = {'host_ip': '10.0.3.100', 'gateway_ip': '10.0.3.1', 'port': 3}
+    self.routing_table['10.0.1.0/24'] = {'gateway_ip': '10.0.1.1', 'port': 1}
+    self.routing_table['10.0.2.0/24'] = {'gateway_ip': '10.0.2.1', 'port': 2}
+    self.routing_table['10.0.3.0/24'] = {'gateway_ip': '10.0.3.1', 'port': 3}
 
     #
     self.ip2port_dict = {}
@@ -121,13 +124,14 @@ class Router (object):
     # New host here
     if protosrc not in self.arp_cache.keys():
       self.arp_cache[protosrc] = hwsrc
+      # print(self.arp_cache)
       self.ip2port_dict[protosrc] = packet_in.in_port
       log.debug("Updated MAC and port for ip %s : Port #%d, MAC: %s" % (protosrc, packet_in.in_port, hwsrc))
       for subnet in self.routing_table.keys():
         if IPAddress(protodst) in IPNetwork(subnet):
           myhwaddr = self.arp_cache[self.routing_table[subnet]['gateway_ip']]
           break;
-      
+      """
       # Install new flow
       log.debug("Installing flow...")
       log.debug("Flow added: MATCH: set_nw_dst : %s" % IPAddr(subnet[:-3]))
@@ -150,7 +154,7 @@ class Router (object):
 
       self.connection.send(msg)
       log.debug("New flow configured.")
-      
+      """
     if opcode == arp.REQUEST:
       log.debug("Handling ARP REQUEST frame:")
       log.debug(arp_body._to_str())
@@ -246,7 +250,7 @@ class Router (object):
     if is_routable:
       if self.routing_table[dstsubnet]['gateway_ip'] == dstip:
         if ip_packet.protocol == ipv4.ICMP_PROTOCOL:
-          _reply_ICMP(packet, packet_in)
+          self._reply_ICMP(packet, packet_in)
         else:
           log.warning("I am not supposed to reply to any IP frames. Dropping.")
       else:
@@ -278,12 +282,37 @@ class Router (object):
           self.resend_packet(fwd, out_port)
           log.debug("IP frame forwarded to %s." % fwd.dst)
 
+          # Install new flow
+          log.debug("Installing flow...")
+          log.debug("Flow added: MATCH: nw_dst : %s" % dstip)
+          log.debug("Flow added: ACTION: set_src : %s" % self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']])
+          log.debug("Flow added: ACTION: set_dst : %s" % self.arp_cache[dstip])
+          log.debug("Flow added: ACTION: output : #%d" % self.ip2port_dict[self.routing_table[dstsubnet]['gateway_ip']])
+
+          msg = of.ofp_flow_mod()
+          ## Set fields to match received packet
+          msg.match.dl_type = ethernet.IP_TYPE
+          msg.match.nw_dst = ip_packet.dstip
+          
+          #< Set other fields of flow_mod (timeouts? buffer_id?) >
+          msg.idle_timeout = 60
+          msg.hard_timeout = 600
+          msg.flags = 3
+
+          #< Add an output action, and send -- similar to resend_packet() >
+          msg.actions.append(of.ofp_action_dl_addr.set_src(self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']]))
+          msg.actions.append(of.ofp_action_dl_addr.set_dst(self.arp_cache[dstip]))
+          msg.actions.append(of.ofp_action_output(port=self.ip2port_dict[self.routing_table[dstsubnet]['gateway_ip']]))
+
+          self.connection.send(msg)
+          log.debug("New flow configured.")
+
     else:
       log.debug("Destination %s is unreachable. Replying with ICMP Unreachable." % dstip)
       
       icmp_reply = icmp()
-      icmp_reply.type = 3 # TYPE_DEST_UNREACH
-      icmp_reply.code = 0 # CODE_UNREACH_NET
+      icmp_reply.type = TYPE_DEST_UNREACH
+      icmp_reply.code = CODE_UNREACH_NET
       icmp_reply.payload = ip_packet.payload.payload
 
       ip_reply = ipv4()
