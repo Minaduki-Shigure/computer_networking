@@ -112,6 +112,12 @@ class Router (object):
     protosrc = arp_body.protosrc
     opcode = arp_body.opcode
 
+    # The type of variables need to be converted.
+    hwdst = str(hwdst)
+    hwsrc = str(hwsrc)
+    protodst = str(protodst)
+    protosrc = str(protosrc)
+
     # New host here
     if protosrc not in self.arp_cache.keys():
       self.arp_cache[protosrc] = hwsrc
@@ -150,22 +156,22 @@ class Router (object):
       log.debug(arp_body._to_str())
 
       if protodst in self.arp_cache.keys():
-        log.debug("Replying requested MAC for %s is %s" % (protodst, self.arp_cache[protodst]))
+        log.debug("Replying that %s has %s" % (self.arp_cache[protodst], protodst))
         arp_reply = arp()
         arp_reply.opcode = arp.REPLY
         arp_reply.hwsrc = EthAddr(self.arp_cache[protodst])
-        arp_reply.hwdst = hwsrc
-        arp_reply.protosrc = protodst
-        arp_reply.protodst = protosrc
+        arp_reply.hwdst = arp_body.hwsrc
+        arp_reply.protosrc = arp_body.protodst
+        arp_reply.protodst = arp_body.protosrc
 
         ether = ethernet()
         ether.type = ether.ARP_TYPE
         ether.src = EthAddr(self.arp_cache[protodst])
-        ether.dst = hwsrc
+        ether.dst = arp_body.hwsrc
         ether.payload = arp_reply
 
         self.resend_packet(ether, packet_in.in_port)
-        log.debug("ARP reply sent to port %d" % packet_in.in_port)
+        log.debug("ARP reply sent to port #%d" % packet_in.in_port)
 
     elif opcode == arp.REPLY:
       log.debug("Handling ARP REPLY frame:")
@@ -196,7 +202,7 @@ class Router (object):
     # log.debug()
 
     if icmp_body.type == TYPE_ECHO_REQUEST:
-      log.debug("ICMP echo request from %s" % ip_packet.srcip)
+      log.debug("ICMP echo request from %s" % str(ip_packet.srcip))
       icmp_reply = icmp_body
       icmp_reply.type = TYPE_ECHO_REPLY
 
@@ -227,6 +233,7 @@ class Router (object):
     ip_packet = packet.payload # This is the packet payload.
 
     dstip = ip_packet.dstip
+    dstip = str(dstip)
     is_routable = False
 
     for subnet in self.routing_table:
@@ -247,18 +254,18 @@ class Router (object):
         log.debug("Trying to forward IP frame to subnet %s at port %d." % (dstsubnet, out_port))
         if dstip not in self.arp_cache.keys():
           self.msg_queue[dstip] = {'dstsubnet': dstsubnet, 'ip_packet': ip_packet}
-          log.debug("The owner of %s unknown. Flooding ARP request to port %d." % (dstip, out_port))
+          log.debug("The owner of %s unknown. Flooding ARP request to port #%d." % (dstip, out_port))
 
           arp_body = arp()
           arp_body.opcode = arp.REQUEST
-          arp_body.protosrc = self.routing_table[dstsubnet]['gateway_ip']
-          arp_body.protodst = dstip
-          arp_body.hwsrc = self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']]
+          arp_body.protosrc = IPAddr(self.routing_table[dstsubnet]['gateway_ip'])
+          arp_body.protodst = ip_packet.dstip
+          arp_body.hwsrc = EthAddr(self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']])
           arp_body.hwdst = EthAddr('FF:FF:FF:FF:FF:FF')
 
           ether = ethernet()
           ether.type = ethernet.ARP_TYPE
-          ether.src = self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']]
+          ether.src = EthAddr(self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']])
           ether.dst = EthAddr('FF:FF:FF:FF:FF:FF')
           ether.payload = arp_body
 
@@ -266,17 +273,17 @@ class Router (object):
 
         else:
           fwd = packet
-          fwd.src = self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']]
-          fwd.dst = self.arp_cache[dstip]
+          fwd.src = EthAddr(self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']])
+          fwd.dst = EthAddr(self.arp_cache[dstip])
           self.resend_packet(fwd, out_port)
           log.debug("IP frame forwarded to %s." % fwd.dst)
 
     else:
-      log.debug("Destination %s is unreachable. Replying with ICMP Unreachable." % ipdst)
+      log.debug("Destination %s is unreachable. Replying with ICMP Unreachable." % dstip)
       
       icmp_reply = icmp()
-      icmp_reply.type = TYPE_DEST_UNREACH
-      icmp_reply.code = CODE_UNREACH_NET
+      icmp_reply.type = 3 # TYPE_DEST_UNREACH
+      icmp_reply.code = 0 # CODE_UNREACH_NET
       icmp_reply.payload = ip_packet.payload.payload
 
       ip_reply = ipv4()
@@ -304,13 +311,13 @@ class Router (object):
     # log.debug("Updated MAC for port %d : %s" % (packet_in.in_port, packet.src))
 
     if packet.type == ethernet.ARP_TYPE:
-      log.debug("ARP frame received from port %d" % packet_in.in_port)
+      log.debug("ARP frame received from port #%d" % packet_in.in_port)
       self._handle_ARP(packet, packet_in)
     elif packet.type == ethernet.IP_TYPE:
-      log.debug("IPv4 frame received from port %d" % packet_in.in_port)
+      log.debug("IPv4 frame received from port #%d" % packet_in.in_port)
       self._handle_IPv4(packet, packet_in)
     else:
-      log.warning("Unsupported frame received from port %d. Dropping." % packet_in.in_port)
+      log.warning("Unsupported frame received from port #%d. Dropping." % packet_in.in_port)
 
 
   def _handle_PacketIn (self, event):
