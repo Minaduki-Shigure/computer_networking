@@ -1,4 +1,4 @@
-# OpenFlow Tutorial: Create a Learning Switch
+# OpenFlow Tutorial: Router Exercise
 
 Copyright (c) 2020 Minaduki Shigure.  
 南京大学 电子科学与工程学院 吴康正 171180571
@@ -12,349 +12,663 @@ mininet 2.2.2
 
 ## 实现方式
 
-基于现有的POX代码加以修改，实现一个控制器，可以控制多个交换机实现自学习的转发。
+基于现有的POX代码加以修改，实现一个控制器，可以控制一个静态路由器完成给定的拓扑网络中的数据转发。
 
 ## 实验过程
 
-### 节点作为集线器接入
+### 使用自定义拓扑运行mininet
 
-首先，在不对POX代码进行任何修改的情况下，使用如下命令直接运行POX程序：
+由于mininet不能自动生成比较复杂的拓扑，因此使用自定义的文件定义网络拓扑，同时预先配置各个节点的地址、子网和网关。
+
+```py
+from mininet.topo import Topo
+
+class MyTopo( Topo ):
+
+    def __init__( self ):
+        "Create custom topo."
+
+        # Initialize topology
+        Topo.__init__( self )
+
+        # Add hosts and switches
+        Host_1 = self.addHost( 'h1', ip='10.0.1.100/24', defaultRoute='via 10.0.1.1' )
+        Host_2 = self.addHost( 'h2', ip='10.0.2.100/24', defaultRoute='via 10.0.2.1' )
+        Host_3 = self.addHost( 'h3', ip='10.0.3.100/24', defaultRoute='via 10.0.3.1' )
+        centreSwitch = self.addSwitch( 's1' )
+
+
+        # Add links
+        self.addLink( Host_1, centreSwitch )
+        self.addLink( Host_2, centreSwitch )
+        self.addLink( Host_3, centreSwitch )
+
+
+topos = { 'mytopo': ( lambda: MyTopo() ) }
+```
+
+然后使用自定义的拓扑运行mininet：
 
 ```bash
-$ ./pox.py log.level --DEBUG misc.of_tutorial
+$ sudo mn --custom mytopo.py --topo mytopo --mac --controller remote
 ```
 
-程序输出如下：
+终端输出如下：
 
 ```plain
-POX 0.2.0 (carp) / Copyright 2011-2013 James McCauley, et al.
-DEBUG:core:POX 0.2.0 (carp) going up...
-DEBUG:core:Running on CPython (2.7.6/Oct 26 2016 20:30:19)
-DEBUG:core:Platform is Linux-4.2.0-27-generic-x86_64-with-Ubuntu-14.04-trusty
-INFO:core:POX 0.2.0 (carp) is up.
-DEBUG:openflow.of_01:Listening on 0.0.0.0:6633
-```
-
-可以看到，POX控制器正在监听6633端口的通信，等待交换机节点连接。
-
-然后，运行mininet，创建一个有3个主机连接到同一个交换机节点的拓扑：
-
-```bash
-$ sudo mn --topo single,3 --mac --switch ovsk --controller remote
-```
-
-mininet的部分输出如下：
-
-```plain
+*** Creating network
 *** Adding controller
 Unable to contact the remote controller at 127.0.0.1:6653
 Connecting to remote controller at 127.0.0.1:6633
+*** Adding hosts:
+h1 h2 h3 
+*** Adding switches:
+s1 
+*** Adding links:
+(h1, s1) (h2, s1) (h3, s1) 
+*** Configuring hosts
+h1 h2 h3 
+*** Starting controller
+c0 
+*** Starting 1 switches
+s1 ...
+*** Starting CLI:
 ```
 
-这证明mininet中的节点已经连接到了使用POX程序创建的控制器上，同时在POX程序的输出中也可以看到有一个新的节点连入：
+mininet成功创建了符合要求的拓扑，对节点输入ifconfig命令，可以看到节点配置正确：
 
 ```plain
-INFO:openflow.of_01:[00-00-00-00-00-01 2] connected
-DEBUG:misc.of_tutorial:Controlling [00-00-00-00-00-01 2]
+mininet> h1 ifconfig
+h1-eth0   Link encap:Ethernet  HWaddr 00:00:00:00:00:01  
+          inet addr:10.0.1.100  Bcast:10.0.1.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
 ```
 
-这样就完成了整个网络拓扑的配置，根据POX文件中的内容，交换机节点此时表现为集线器，也就是说控制器会指挥节点将收到的包泛洪到节点其他的所有接口。  
-以上的配置命令和输出除非有所变化，否则在后续实验中将不再重复。
+这样就完成了本实验mininet的配置。
 
-在mininet中，启动各个节点的终端，在h2和h3节点中，运行tcpdump命令监控输入的封包，在h1节点中，使用ping命令发送ICMP封包给h2节点：
+### 控制器实现
 
-```plain
-h2 # tcpdump -XX -n -i h2-eth0
-h3 # tcpdump -XX -n -i h3-eth0
-h1 # ping 10.0.0.2
-```
+控制器由POX文件`of_router.py`实现，该文件在上个实验`of_tutorial.py`的基础上修改实现。
 
-对于h1节点的反馈，可以看见h1节点与h2节点之间可以ping通，平均RTT约为41ms。
-![h1 @ h1 ping h2 w/ s1 as hub](./pic/1-1.png)
+**实际上，实验中的网络是完全静态的，因此本实验可以完全由对接口主机的判断和下发对应的预先准备的流表实现（就像斯坦福提供的solution一样），不过由于是在上一个实验的基础上修改而成的，因此本次实验的代码与solution的思路不同，有一定的学习能力，这样的好处是如果网络拓扑改变，本次实验的代码需要改动的部分会远小于solution需要改动的部分。**
 
-对于h2、h3节点的反馈，可以看见两个节点收到了完全一样的封包，包括ARP请求、h1发送的ICMP包和h2回复的ICMP包。
-![h2 & h3 @ h1 ping h2 w/ s1 as hub](./pic/1-2.png)
+由于代码篇幅较长，完整代码请在[Git Repo](https://git.nju.edu.cn/Minaduki/computer_networking/-/tree/master/openflow/src)中或者附件中查看。
 
-接下来，尝试使用h1节点ping一个不存在的节点`10.0.0.5`，结果如下：
+对于输入的每一个帧，控制器整体的运行逻辑如下：
 
-h1节点无法连通目标节点。
-![h1 @ h1 ping Unknown w/ s1 as hub](./pic/1-3.png)
+1. 收到包，判断是ARP帧，则转第2步，是IP数据报，则转第5步，否则不予理睬，转第10步。
+2. 调用_handle_ARP函数处理。如果是ARP请求，转第3步，如果是ARP回应，转第4步，否则不予理睬，转第10步。
+3. 如果请求的地址在ARP缓存中，则回应对应的地址，否则不予理睬。不论判断如何，转第10步。
+4. 判断ARP回复的地址是否有在消息队列中等待转发的IP数据报，如果有则发送。不论判断如何，转第10步。
+5. 调用_handle_IPv4函数处理。如果是发送给路由器的IP报，转第6步，否则转第7步。
+6. 如果是ICMP echo request，调用_reply_ICMP函数回复处理，否则不予理睬。不论判断如何，转第10步。
+7. 判断IP报可不可达，如果不可达，返回ICMP unreachable，转第10步，否则转第8步。
+8. 查询ARP缓存是否有目标主机的硬件地址，如果没有，将IP报暂存在消息队列，并发送ARP请求，然后转第10步，否则转第9步。
+9. 将IP报的硬件地址字段重写并发出，然后下发对应的流表项。转第10步。
+10. 处理结束。
 
-h2、h3节点收到了h1节点发出的ARP请求，但是由于没有回应，因此没有后续的ICMP包发出，也自然没有捕获。
-![h2 & h3 @ h1 ping Unknown w/ s1 as hub](./pic/1-4.png)
+下面是部分关键代码。
 
-另外，还可以在mininet终端中直接输入pingall命令检测所有节点之间的连通性，由于与单独ping结果一样，因此不另行展示。
-
-使用iperf命令可以测试节点之间的网络性能，在mininet终端内输入iperf，mininet会测试在h1节点和h3节点之间的网络性能，测试结果如下：
-
-```plain
-*** Iperf: testing TCP bandwidth between h1 and h3 
-*** Results: ['12.3 Mbits/sec', '14.7 Mbits/sec']
-```
-
-tcpdump的结果与ping相同，h2与h3都收到了完全相同的封包。
-
-按照ovs-ofctl的输出显示，节点之间的链路应至少为10Gbps的链路，然而iperf测试得到的网络连接速度很缓慢，同时在POX的日志中提示队列中排队的封包过多，推测应该是由于每个封包都会发送给控制器，然后再由控制器下令进行泛洪的原因导致的，这也能够解释在ping的时候RTT为什么一直反常地较高。
-
-**另外需要指出的一点是，tcpdump本身对网络性能有负面影响，如果tcpdump在运行则iperf测试的结果会偏低，关闭tcpdump后，集线器模式的性能测试结果为['19.9 Mbits/sec', '23.0 Mbits/sec']，略强于tcpdump运行时的性能，而这个性能差距在交换机模式下更加明显。**
-
-### 节点作为交换机接入
-
-修改文件`of_tutorial.py`，在Tutorial类中加入函数act_like_switch，内容如下：
+#### 控制器存储
 
 ```py
-def act_like_switch (self, packet, packet_in):
-    """
-    Implement switch-like behavior.
-    """
+# ARP cache
+self.arp_cache = {}
+# Init ARP record for router itself.
+self.arp_cache['10.0.1.1'] = 'FF:FF:FF:FF:FF:01'
+self.arp_cache['10.0.2.1'] = 'FF:FF:FF:FF:FF:02'
+self.arp_cache['10.0.3.1'] = 'FF:FF:FF:FF:FF:03'
+# Default MAC that mininet use for hosts starts from all zeros, 
+# so we start ours from all ones.
 
-    # Here's some psuedocode to start you off implementing a learning
-    # switch.  You'll need to rewrite it as real Python code.
+# Routing table (create a structure with all of the information statically assigned)
+self.routing_table = {}
+self.routing_table['10.0.1.0/24'] = {'gateway_ip': '10.0.1.1', 'port': 1}
+self.routing_table['10.0.2.0/24'] = {'gateway_ip': '10.0.2.1', 'port': 2}
+self.routing_table['10.0.3.0/24'] = {'gateway_ip': '10.0.3.1', 'port': 3}
 
-    # Learn the port for the source MAC
-    self.mac_to_port[packet.src] = packet_in.in_port
-    log.debug("Updated MAC for port %d : %s" % (packet_in.in_port, packet.src))
+# Gateway IP to switch port
+self.ip2port_dict = {}
+self.ip2port_dict['10.0.1.1'] = 1
+self.ip2port_dict['10.0.2.1'] = 2
+self.ip2port_dict['10.0.3.1'] = 3
 
-    if packet.dst in self.mac_to_port:
-        # Send packet out the associated port
-        self.resend_packet(packet_in, self.mac_to_port[packet.dst])
-        log.debug("MAC matched, sending to port %d" % self.mac_to_port[packet.dst])
-
-        # Once you have the above working, try pushing a flow entry
-        # instead of resending the packet (comment out the above and
-        # uncomment and complete the below.)
-
-        log.debug("Installing flow...")
-        # Maybe the log statement should have source/destination/port?
-        log.debug("Flow added: MATCH: in_port :  %s" % packet_in.in_port)
-        log.debug("Flow added: MATCH: MAC_src :  %s" % packet.src)
-        log.debug("Flow added: MATCH: MAC_dst :  %s" % packet.dst)
-        log.debug("Flow added: ACTION: out_port :  %s" % self.mac_to_port[packet.dst])
-
-        msg = of.ofp_flow_mod()
-        #
-        ## Set fields to match received packet
-        msg.match = of.ofp_match.from_packet(packet)
-      
-        #< Set other fields of flow_mod (timeouts? buffer_id?) >
-        msg.idle_timeout = 60
-        msg.hard_timeout = 600
-        """ It seems the buffer is not avaliable? Buffer ID will not be sent.
-        if packet_in.buffer_id != -1 and packet_in.buffer_id is not None:
-            # We got a buffer ID from the switch; use that
-            msg.buffer_id = packet_in.buffer_id
-            log.debug("buffer_id : %s" % packet_in.buffer_id)
-        """
-
-        #< Add an output action, and send -- similar to resend_packet() >
-        msg.actions.append(of.ofp_action_output(port=self.mac_to_port[packet.dst]))
-
-        self.connection.send(msg)
-        log.debug("New flow configured.")
-
-    else:
-        # Flood the packet out everything but the input port
-        # This part looks familiar, right?
-        self.resend_packet(packet_in, of.OFPP_ALL)
-        log.debug("Port for MAC %s unknown. Flooding." % packet.dst)
+# Message queue (while the router waits for an ARP reply)
+self.msg_queue = {}
 ```
 
-函数的具体实现思路是：当一个封包被发送到控制器时，控制器首先将封包来源的端口和MAC地址记录到字典中，然后判断封包目的地的MAC地址是否在字典中，如果不在，则泛洪，否则会命令交换机将封包送到对应的端口，同时下发一条新的流到交换机，流的内容即为在对应的输入端口、源MAC和目标MAC的情况下，使用哪个端口发送的指令，这样在流过期之前，交换机就可以不依赖控制器完成转发。
+控制器负责维护以下内容：
 
-然后修改函数_handle_PacketIn中的内容，将act_like_hub修改为act_like_switch，这样控制器就会调用act_like_switch函数的内容，实现交换机的功能配置。
+1. ARP缓存：记录每个IP拥有的硬件地址，初始化时拥有路由器自身的硬件地址信息。
+2. 路由表：保存每个子网的网关IP和端口号。
+3. 端口表：保存每个子网的网关IP对应的端口号。
+4. 消息队列：暂存等待ARP回应的IP报。
 
-启动POX控制器和mininet，首先还是使用h1节点ping节点h2，控制器日志如下：
+*其中，mininet对于主机的硬件地址会从全0开始自动按顺序分配，对于交换机的硬件地址却是随机的（且与控制器ARP缓存预设的不一样），不过这并不会影响实际的网络功能，因此没有进行额外的配置。*  
+*事实上，我一开始没有意识到主机的硬件地址是从全0开始的，因此我在ARP缓存中给路由器分配的硬件地址也是从全0开始的，直到观察下发流表的debug信息才发现并进行了改正，但是由于本题目中网络拓扑结构的原因，硬件地址冲突并不会影响到网络工作。*
 
-```plain
-DEBUG:misc.of_tutorial:Updated MAC for port 1 : 00:00:00:00:00:01
-DEBUG:misc.of_tutorial:Port for MAC ff:ff:ff:ff:ff:ff unknown. Flooding.
-DEBUG:misc.of_tutorial:Updated MAC for port 2 : 00:00:00:00:00:02
-DEBUG:misc.of_tutorial:MAC matched, sending to port 1
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  00:00:00:00:00:02
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  00:00:00:00:00:01
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 1 : 00:00:00:00:00:01
-DEBUG:misc.of_tutorial:MAC matched, sending to port 2
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  00:00:00:00:00:01
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  00:00:00:00:00:02
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
-DEBUG:misc.of_tutorial:New flow configured.
+#### 流表下发
+
+```py
+# Install new flow
+log.debug("Installing flow...")
+log.debug("Flow added: MATCH: nw_dst : %s" % dstip)
+log.debug("Flow added: ACTION: set_src : %s" % self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']])
+log.debug("Flow added: ACTION: set_dst : %s" % self.arp_cache[dstip])
+log.debug("Flow added: ACTION: output : #%d" % self.ip2port_dict[self.routing_table[dstsubnet]['gateway_ip']])
+
+msg = of.ofp_flow_mod()
+## Set fields to match received packet
+msg.match.dl_type = ethernet.IP_TYPE
+msg.match.nw_dst = ip_packet.dstip
+          
+#< Set other fields of flow_mod (timeouts? buffer_id?) >
+msg.idle_timeout = 60
+msg.hard_timeout = 600
+msg.flags = 3
+
+#< Add an output action, and send -- similar to resend_packet() >
+msg.actions.append(of.ofp_action_dl_addr.set_src(self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']]))
+msg.actions.append(of.ofp_action_dl_addr.set_dst(self.arp_cache[dstip]))
+msg.actions.append(of.ofp_action_output(port=self.ip2port_dict[self.routing_table[dstsubnet]['gateway_ip']]))
+
+self.connection.send(msg)
+log.debug("New flow configured.")
 ```
 
-控制器根据节点上交的封包信息自动“学习”了端口对应的MAC地址，同时也根据学习的MAC地址完成了流的下发，这样对于后续的同样封包，交换机节点就可以自行处理。
+在控制器收到的IP包确定可以进行转发后，就会下发一条流表项，流表项会指示路由器将所有符合该目标IP的以太网帧的源硬件地址重写为路由器网关对应的硬件地址，目标硬件地址重写为目标IP对应的硬件地址，然后从对应的接口送出。
 
-在h1节点的终端处可见，第一个封包的RTT很长，这是因为交换机中没有配置好的流，因此需要把包发送给控制器进行判断，而后续封包的RTT急剧下降，就是因为控制器下发了流之后，交换机不再需要与控制器通讯就可以完成转发，因此转发的时间降低了。
-![h1 @ h1 ping h2 w/ s1 as switch](./pic/1-5.png)
+*写报告的时候又意识到，如果在收到ARP reply的时候也加入下发流表的代码，似乎可以提升性能。*
 
-同时在h2与h3节点中也可以看到，h2节点收到了所有有关的封包，而h3节点只收到了一开始泛洪的一个ARP包。
-![h2 & h3 @ h1 ping h2 w/ s1 as switch](./pic/1-6.png)
+### 功能验证
 
-使用iperf命令测试网络性能，性能相比集线器模式下有巨大的提升，同时tcpdump也显示，所有的数据均被发送到了h3节点，h2节点仅收到了一些ARP包，这里不再赘述。
-
-```plain
-*** Iperf: testing TCP bandwidth between h1 and h3 
-*** Results: ['10.5 Gbits/sec', '10.5 Gbits/sec']
-```
-
-之前提到，tcpdump会影响网络性能，关闭tcpdump后，iperf测试结果有所提升：
-
-```plain
-*** Iperf: testing TCP bandwidth between h1 and h3 
-*** Results: ['29.1 Gbits/sec', '29.1 Gbits/sec']
-```
-
-### 多节点支持
-
-使用mininet建立一个有两个交换机和两个终端的拓扑。
+在不同的终端窗口中分别启动POX控制器和mininet：
 
 ```bash
-$ sudo mn --topo linear --switch ovsk --controller remote
+$ ./pox.py log.level --DEBUG misc.of_router
+$ sudo mn --custom mytopo.py --topo mytopo --mac --controller remote
 ```
 
-由于POX会为每个接入的交换机分别创建一个控制器实例，因此POX的代码不需要修改，可以在POX日志中看见有两个交换机接入：
+首先还是使用h1节点ping节点h2，控制器日志如下：
 
 ```plain
-INFO:openflow.of_01:[00-00-00-00-00-02 2] connected
-DEBUG:misc.of_tutorial:Controlling [00-00-00-00-00-02 2]
-INFO:openflow.of_01:[00-00-00-00-00-01 3] connected
-DEBUG:misc.of_tutorial:Controlling [00-00-00-00-00-01 3]
+DEBUG:misc.of_router:Controlling [00-00-00-00-00-01 2]
+DEBUG:misc.of_router:ARP frame received from port #1
+DEBUG:misc.of_router:Updated MAC and port for ip 10.0.1.100 : Port #1, MAC: 00:00:00:00:00:01
+DEBUG:misc.of_router:Handling ARP REQUEST frame:
+DEBUG:misc.of_router:[ARP REQUEST hw:1 p:2048 00:00:00:00:00:01>00:00:00:00:00:00 10.0.1.100>10.0.1.1]
+DEBUG:misc.of_router:Replying that FF:FF:FF:FF:FF:01 has 10.0.1.1
+DEBUG:misc.of_router:ARP reply sent to port #1
+DEBUG:misc.of_router:IPv4 diagram received from port #1
+DEBUG:misc.of_router:IP diagram routable to subnet 10.0.2.0/24
+DEBUG:misc.of_router:Trying to forward IP diagram to subnet 10.0.2.0/24 at port 2.
+DEBUG:misc.of_router:The owner of 10.0.2.100 unknown. Flooding ARP request to port #2.
+DEBUG:misc.of_router:ARP frame received from port #2
+DEBUG:misc.of_router:Updated MAC and port for ip 10.0.2.100 : Port #2, MAC: 00:00:00:00:00:02
+DEBUG:misc.of_router:Handling ARP REPLY frame:
+DEBUG:misc.of_router:[ARP REPLY hw:1 p:2048 00:00:00:00:00:02>ff:ff:ff:ff:ff:02 10.0.2.100>10.0.2.1]
+DEBUG:misc.of_router:ARP received: 00:00:00:00:00:02 has 10.0.2.100
+DEBUG:misc.of_router:IPv4 diagram received from port #2
+DEBUG:misc.of_router:IP diagram routable to subnet 10.0.1.0/24
+DEBUG:misc.of_router:Trying to forward IP diagram to subnet 10.0.1.0/24 at port 1.
+DEBUG:misc.of_router:IP diagram forwarded to 00:00:00:00:00:01.
+DEBUG:misc.of_router:Installing flow...
+DEBUG:misc.of_router:Flow added: MATCH: nw_dst : 10.0.1.100
+DEBUG:misc.of_router:Flow added: ACTION: set_src : FF:FF:FF:FF:FF:01
+DEBUG:misc.of_router:Flow added: ACTION: set_dst : 00:00:00:00:00:01
+DEBUG:misc.of_router:Flow added: ACTION: output : #1
+DEBUG:misc.of_router:New flow configured.
+DEBUG:misc.of_router:IPv4 diagram received from port #1
+DEBUG:misc.of_router:IP diagram routable to subnet 10.0.2.0/24
+DEBUG:misc.of_router:Trying to forward IP diagram to subnet 10.0.2.0/24 at port 2.
+DEBUG:misc.of_router:IP diagram forwarded to 00:00:00:00:00:02.
+DEBUG:misc.of_router:Installing flow...
+DEBUG:misc.of_router:Flow added: MATCH: nw_dst : 10.0.2.100
+DEBUG:misc.of_router:Flow added: ACTION: set_src : FF:FF:FF:FF:FF:02
+DEBUG:misc.of_router:Flow added: ACTION: set_dst : 00:00:00:00:00:02
+DEBUG:misc.of_router:Flow added: ACTION: output : #2
+DEBUG:misc.of_router:New flow configured.
+DEBUG:misc.of_router:ARP frame received from port #2
+DEBUG:misc.of_router:Handling ARP REQUEST frame:
+DEBUG:misc.of_router:[ARP REQUEST hw:1 p:2048 00:00:00:00:00:02>00:00:00:00:00:00 10.0.2.100>10.0.2.1]
+DEBUG:misc.of_router:Replying that FF:FF:FF:FF:FF:02 has 10.0.2.1
+DEBUG:misc.of_router:ARP reply sent to port #2
 ```
 
-使用mininet终端的`pingall`命令测试，两台主机之间网络畅通，同时也可以看见POX日志中进行了学习和流的下发。不过POX日志中没有对不同的交换机进行区分，因此看起来比较混乱。
+日志中包含了整个从源主机发送ARP请求->路由器回应->源主机发送IP报给路由器->路由器发送ARP请求->路由器转发IP报给目标主机->控制器下发流表的过程，日志中，参数的配置均正确，同时，mininet终端显示也证明网络连通，可以认为路由器工作正常。
+
+打开h1的终端，ping路由器的IP地址，控制器日志显示如下：
 
 ```plain
-DEBUG:misc.of_tutorial:Updated MAC for port 1 : be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Port for MAC ff:ff:ff:ff:ff:ff unknown. Flooding.
-DEBUG:misc.of_tutorial:Updated MAC for port 2 : be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Port for MAC ff:ff:ff:ff:ff:ff unknown. Flooding.
-DEBUG:misc.of_tutorial:Updated MAC for port 1 : 5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:MAC matched, sending to port 2
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 2 : 5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:MAC matched, sending to port 1
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 1 : be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:MAC matched, sending to port 2
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 2 : be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:MAC matched, sending to port 1
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 1 : 5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:MAC matched, sending to port 2
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 2 : 5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:MAC matched, sending to port 1
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 1 : 5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:MAC matched, sending to port 2
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 2 : 5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:MAC matched, sending to port 1
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 1 : be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:MAC matched, sending to port 2
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 2 : be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:MAC matched, sending to port 1
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 1 : 5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:MAC matched, sending to port 2
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 2 : 5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:MAC matched, sending to port 1
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 1 : be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:MAC matched, sending to port 2
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
-DEBUG:misc.of_tutorial:New flow configured.
-DEBUG:misc.of_tutorial:Updated MAC for port 2 : be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:MAC matched, sending to port 1
-DEBUG:misc.of_tutorial:Installing flow...
-DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
-DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
-DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
-DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_router:ARP frame received from port #1
+DEBUG:misc.of_router:Updated MAC and port for ip 10.0.1.100 : Port #1, MAC: 00:00:00:00:00:01
+DEBUG:misc.of_router:Handling ARP REQUEST frame:
+DEBUG:misc.of_router:[ARP REQUEST hw:1 p:2048 00:00:00:00:00:01>00:00:00:00:00:00 10.0.1.100>10.0.1.1]
+DEBUG:misc.of_router:Replying that FF:FF:FF:FF:FF:01 has 10.0.1.1
+DEBUG:misc.of_router:ARP reply sent to port #1
+DEBUG:misc.of_router:IPv4 diagram received from port #1
+DEBUG:misc.of_router:IP diagram routable to subnet 10.0.1.0/24
+DEBUG:misc.of_router:ICMP echo request from 10.0.1.100
+DEBUG:misc.of_router:ICMP echo reply sent to 10.0.1.100
+DEBUG:misc.of_router:IPv4 diagram received from port #1
+DEBUG:misc.of_router:IP diagram routable to subnet 10.0.1.0/24
+DEBUG:misc.of_router:ICMP echo request from 10.0.1.100
+DEBUG:misc.of_router:ICMP echo reply sent to 10.0.1.100
+(省略)
 ```
 
-最后，使用iperf测试一下网络性能：
+同时h1终端显示ping的回应正常：
+
+![h1 @ h1 ping s1](./pic/2-1.png)
+
+*理论而言，如何回应ICMP也可以作为流表项下发，不过因为不是常用的功能，对整体性能影响不大，因此没有实装。*
+
+然后，使用h1节点ping不存在的10.99.0.1，控制器日志如下：
 
 ```plain
-*** Iperf: testing TCP bandwidth between h1 and h2 
-*** Results: ['27.4 Gbits/sec', '27.4 Gbits/sec']
+DEBUG:misc.of_router:IPv4 diagram received from port #1
+DEBUG:misc.of_router:Destination 10.99.0.1 is unreachable. Replying with ICMP Unreachable.
 ```
 
-网络性能符合预期。
+同时h1接收到了返回的ICMP不可达的包：
+
+![h1 @ h1 ping unreachable](./pic/2-2.png)
+
+最后，使用pingall命令进行整体测试：
+
+```plain
+*** Ping: testing ping reachability
+h1 -> h2 h3 
+h2 -> h1 h3 
+h3 -> h1 h2 
+*** Results: 0% dropped (6/6 received)
+```
+
+网络连通，工作正常。
+
+使用iperf命令测试网络性能：
+
+```plain
+*** Iperf: testing TCP bandwidth between h1 and h3 
+*** Results: ['26.1 Gbits/sec', '26.0 Gbits/sec']
+```
+
+网络性能符合预期，工作正常。
 
 ## 小结
 
-通过此次实验，对OpenFlow的基本概念有了详细的理解，同时对自学习交换机的工作原理有了直观的认识，同时也初步掌握了一些工具比如mininet和X11转发的使用方法。
+通过此次实验，详细地理解了路由器的工作方式，加深了对OpenFlow流表的概念，同时对IP与以太网的工作方式有了初步的掌握。
+
+## 附录：完整源码
+
+```py
+# Copyright 2012 James McCauley
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at:
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Modefied by Minaduki Shigure @ NJU, June 2020.
+# Running the switch as a static router.
+#
+
+"""
+This component is for use with the OpenFlow tutorial.
+
+It acts as a simple hub, but can be modified to act like an L2
+learning switch.
+
+It's roughly similar to the one Brandon Heller did for NOX.
+"""
+
+from pox.core import core
+import pox.openflow.libopenflow_01 as of
+from netaddr import *
+from pox.lib.revent import *
+from pox.lib.packet.ethernet import ethernet
+from pox.lib.packet.ipv4 import ipv4
+from pox.lib.packet.arp import arp
+from pox.lib.packet.icmp import icmp, echo
+from pox.lib.packet.icmp import TYPE_ECHO_REQUEST, TYPE_ECHO_REPLY, TYPE_DEST_UNREACH, CODE_UNREACH_NET, CODE_UNREACH_HOST
+from pox.lib.addresses import IPAddr, EthAddr
+from pox.lib.util import str_to_bool, dpid_to_str
+
+
+log = core.getLogger()
+
+
+
+class Router (object):
+  """
+  A Router object is created for each switch that connects.
+  A Connection object for that switch is passed to the __init__ function.
+  """
+  def __init__ (self, connection):
+    # Keep track of the connection to the switch so that we can
+    # send it messages!
+    self.connection = connection
+
+    # This binds our PacketIn event listener
+    connection.addListeners(self)
+
+    # Use this table to keep track of which ethernet address is on
+    # which switch port (keys are MACs, values are ports).
+    # self.mac_to_port = {}
+
+    # ARP cache
+    self.arp_cache = {}
+    # Init ARP record for router itself.
+    self.arp_cache['10.0.1.1'] = 'FF:FF:FF:FF:FF:01'
+    self.arp_cache['10.0.2.1'] = 'FF:FF:FF:FF:FF:02'
+    self.arp_cache['10.0.3.1'] = 'FF:FF:FF:FF:FF:03'
+    # Default MAC that mininet use starts from all zeros, 
+    # so we start ours from all ones.
+
+    # Routing table (create a structure with all of the information statically assigned)
+    self.routing_table = {}
+    self.routing_table['10.0.1.0/24'] = {'gateway_ip': '10.0.1.1', 'port': 1}
+    self.routing_table['10.0.2.0/24'] = {'gateway_ip': '10.0.2.1', 'port': 2}
+    self.routing_table['10.0.3.0/24'] = {'gateway_ip': '10.0.3.1', 'port': 3}
+
+    # Gateway IP to switch port
+    self.ip2port_dict = {}
+    self.ip2port_dict['10.0.1.1'] = 1
+    self.ip2port_dict['10.0.2.1'] = 2
+    self.ip2port_dict['10.0.3.1'] = 3
+
+    # Message queue (while the router waits for an ARP reply)
+    self.msg_queue = {}
+
+
+  def resend_packet (self, packet_in, out_port):
+    """
+    Instructs the switch to resend a packet that it had sent to us.
+    "packet_in" is the ofp_packet_in object the switch had sent to the
+    controller due to a table-miss.
+    """
+    msg = of.ofp_packet_out()
+    msg.data = packet_in
+
+    # Add an action to send to the specified port
+    action = of.ofp_action_output(port = out_port)
+    msg.actions.append(action)
+
+    # Send message to switch
+    self.connection.send(msg)
+
+
+  def _handle_ARP (self, packet, packet_in):
+    """
+    Handles ARP frame.
+    """
+    # Read ARP info.
+    arp_body = packet.payload
+    hwdst = arp_body.hwdst
+    hwsrc = arp_body.hwsrc
+    protodst = arp_body.protodst
+    protosrc = arp_body.protosrc
+    opcode = arp_body.opcode
+
+    # The type of variables need to be converted.
+    hwdst = str(hwdst)
+    hwsrc = str(hwsrc)
+    protodst = str(protodst)
+    protosrc = str(protosrc)
+
+    # New host here
+    if protosrc not in self.arp_cache.keys():
+      self.arp_cache[protosrc] = hwsrc
+      # print(self.arp_cache)
+      self.ip2port_dict[protosrc] = packet_in.in_port
+      log.debug("Updated MAC and port for ip %s : Port #%d, MAC: %s" % (protosrc, packet_in.in_port, hwsrc))
+      for subnet in self.routing_table.keys():
+        if IPAddress(protodst) in IPNetwork(subnet):
+          myhwaddr = self.arp_cache[self.routing_table[subnet]['gateway_ip']]
+          break;
+      
+    if opcode == arp.REQUEST:
+      log.debug("Handling ARP REQUEST frame:")
+      log.debug(arp_body._to_str())
+
+      if protodst in self.arp_cache.keys():
+        log.debug("Replying that %s has %s" % (self.arp_cache[protodst], protodst))
+        arp_reply = arp()
+        arp_reply.opcode = arp.REPLY
+        arp_reply.hwsrc = EthAddr(self.arp_cache[protodst])
+        arp_reply.hwdst = arp_body.hwsrc
+        arp_reply.protosrc = arp_body.protodst
+        arp_reply.protodst = arp_body.protosrc
+
+        ether = ethernet()
+        ether.type = ether.ARP_TYPE
+        ether.src = EthAddr(self.arp_cache[protodst])
+        ether.dst = arp_body.hwsrc
+        ether.payload = arp_reply
+
+        self.resend_packet(ether, packet_in.in_port)
+        log.debug("ARP reply sent to port #%d" % packet_in.in_port)
+
+    elif opcode == arp.REPLY:
+      log.debug("Handling ARP REPLY frame:")
+      log.debug(arp_body._to_str())
+
+      if protosrc in self.msg_queue.keys():
+        log.debug("ARP received: %s has %s" % (hwsrc, protosrc))
+        
+        ether = ethernet()
+        ether.type = ether.IP_TYPE
+        ether.src = EthAddr(self.arp_cache[self.routing_table[self.msg_queue[protosrc]['dstsubnet']]['gateway_ip']])
+        ether.dst = EthAddr(hwsrc)
+        ether.payload = self.msg_queue[protosrc]['ip_packet']
+        self.resend_packet(ether, packet_in.in_port)
+        self.msg_queue.pop(protosrc)
+
+    else:
+      log.warning("Unsupported ARP opcode %d. Ignored." % opcode)
+
+
+  def _reply_ICMP (self, packet, packet_in):
+    """
+    Replys ICMP packet.
+    """
+    ip_packet = packet.payload
+    icmp_body = ip_packet.payload
+    # log.debug()
+
+    if icmp_body.type == TYPE_ECHO_REQUEST:
+      log.debug("ICMP echo request from %s" % str(ip_packet.srcip))
+      icmp_reply = icmp_body
+      icmp_reply.type = TYPE_ECHO_REPLY
+
+      ip_reply = ipv4()
+      ip_reply.protocol = ipv4.ICMP_PROTOCOL
+      ip_reply.srcip = ip_packet.dstip
+      ip_reply.dstip = ip_packet.srcip
+      ip_reply.payload = icmp_reply
+
+      ether = ethernet()
+      ether.type = ethernet.IP_TYPE
+      ether.src = packet.dst
+      ether.dst = packet.src
+      ether.payload = ip_reply
+
+      self.resend_packet(ether, packet_in.in_port)
+      log.debug("ICMP echo reply sent to %s" % ip_reply.dstip)
+
+    else:
+      log.warning("I am not supposed to reply to ICMP type %d. Dropping." % icmp_body.type)
+      
+
+  def _handle_IPv4 (self, packet, packet_in):
+    """
+    Handles IPv4 diagram.
+    """
+
+    ip_packet = packet.payload # This is the packet payload.
+
+    srcip = ip_packet.srcip
+    dstip = ip_packet.dstip
+    srcip = str(srcip)
+    dstip = str(dstip)
+    is_routable = False
+
+    for subnet in self.routing_table:
+      if IPAddress(dstip) in IPNetwork(subnet):
+        is_routable = True
+        dstsubnet = subnet
+        log.debug("IP diagram routable to subnet %s" % dstsubnet)
+        break
+
+    if is_routable:
+      if self.routing_table[dstsubnet]['gateway_ip'] == dstip:
+        if ip_packet.protocol == ipv4.ICMP_PROTOCOL:
+          self._reply_ICMP(packet, packet_in)
+        else:
+          log.warning("I am not supposed to reply to any IP diagrams. Dropping.")
+      else:
+        out_port = self.ip2port_dict[self.routing_table[dstsubnet]['gateway_ip']]
+        log.debug("Trying to forward IP diagram to subnet %s at port %d." % (dstsubnet, out_port))
+        if dstip not in self.arp_cache.keys():
+          self.msg_queue[dstip] = {'dstsubnet': dstsubnet, 'ip_packet': ip_packet}
+          log.debug("The owner of %s unknown. Flooding ARP request to port #%d." % (dstip, out_port))
+
+          arp_body = arp()
+          arp_body.opcode = arp.REQUEST
+          arp_body.protosrc = IPAddr(self.routing_table[dstsubnet]['gateway_ip'])
+          arp_body.protodst = ip_packet.dstip
+          arp_body.hwsrc = EthAddr(self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']])
+          arp_body.hwdst = EthAddr('FF:FF:FF:FF:FF:FF')
+
+          ether = ethernet()
+          ether.type = ethernet.ARP_TYPE
+          ether.src = EthAddr(self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']])
+          ether.dst = EthAddr('FF:FF:FF:FF:FF:FF')
+          ether.payload = arp_body
+
+          self.resend_packet(ether, out_port)
+
+        else:
+          fwd = packet
+          fwd.src = EthAddr(self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']])
+          fwd.dst = EthAddr(self.arp_cache[dstip])
+          self.resend_packet(fwd, out_port)
+          log.debug("IP diagram forwarded to %s." % fwd.dst)
+
+          # Install new flow
+          log.debug("Installing flow...")
+          log.debug("Flow added: MATCH: nw_dst : %s" % dstip)
+          log.debug("Flow added: ACTION: set_src : %s" % self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']])
+          log.debug("Flow added: ACTION: set_dst : %s" % self.arp_cache[dstip])
+          log.debug("Flow added: ACTION: output : #%d" % self.ip2port_dict[self.routing_table[dstsubnet]['gateway_ip']])
+
+          msg = of.ofp_flow_mod()
+          ## Set fields to match received packet
+          msg.match.dl_type = ethernet.IP_TYPE
+          msg.match.nw_dst = ip_packet.dstip
+          
+          #< Set other fields of flow_mod (timeouts? buffer_id?) >
+          msg.idle_timeout = 60
+          msg.hard_timeout = 600
+          msg.flags = 3
+
+          #< Add an output action, and send -- similar to resend_packet() >
+          msg.actions.append(of.ofp_action_dl_addr.set_src(self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']]))
+          msg.actions.append(of.ofp_action_dl_addr.set_dst(self.arp_cache[dstip]))
+          msg.actions.append(of.ofp_action_output(port=self.ip2port_dict[self.routing_table[dstsubnet]['gateway_ip']]))
+
+          self.connection.send(msg)
+          log.debug("New flow configured.")
+
+    else:
+      log.debug("Destination %s is unreachable. Replying with ICMP Unreachable." % dstip)
+      
+      for subnet in self.routing_table:
+        if IPAddress(srcip) in IPNetwork(subnet):
+          srcsubnet = subnet
+          break
+
+      icmp_reply = icmp()
+      icmp_reply.type = TYPE_DEST_UNREACH
+      icmp_reply.code = CODE_UNREACH_NET
+      icmp_reply.payload = ip_packet.payload.payload
+
+      ip_reply = ipv4()
+      ip_reply.protocol = ipv4.ICMP_PROTOCOL
+      ip_reply.srcip = IPAddr(self.routing_table[srcsubnet]['gateway_ip'])
+      ip_reply.dstip = ip_packet.srcip
+      ip_reply.payload = icmp_reply
+
+      ether = ethernet()
+      ether.type = ethernet.IP_TYPE
+      ether.src = packet.dst
+      ether.dst = packet.src
+      ether.payload = ip_reply
+
+      self.resend_packet(ether, packet_in.in_port)
+
+
+  def act_like_router (self, packet, packet_in):
+    """
+    Implement router-like behavior.
+    """
+
+    # Learn the port for the source MAC
+    # self.mac_to_port[packet.src] = packet_in.in_port
+    # log.debug("Updated MAC for port %d : %s" % (packet_in.in_port, packet.src))
+
+    if packet.type == ethernet.ARP_TYPE:
+      log.debug("ARP frame received from port #%d" % packet_in.in_port)
+      self._handle_ARP(packet, packet_in)
+    elif packet.type == ethernet.IP_TYPE:
+      log.debug("IPv4 diagram received from port #%d" % packet_in.in_port)
+      self._handle_IPv4(packet, packet_in)
+    else:
+      log.warning("Unsupported frame received from port #%d. Dropping." % packet_in.in_port)
+
+
+  def _handle_PacketIn (self, event):
+    """
+    Handles packet in messages from the switch.
+    """
+    packet = event.parsed # This is the parsed packet data.
+    if not packet.parsed:
+      log.warning("Ignoring incomplete packet")
+      return
+
+    packet_in = event.ofp # The actual ofp_packet_in message.
+
+    # Comment out the following line and uncomment the one after
+    # when starting the exercise.
+    self.act_like_router(packet, packet_in)
+
+
+
+def launch ():
+  """
+  Starts the component
+  """
+  def start_switch (event):
+    log.debug("Controlling %s" % (event.connection,))
+    Router(event.connection)
+  core.openflow.addListenerByName("ConnectionUp", start_switch)
+```

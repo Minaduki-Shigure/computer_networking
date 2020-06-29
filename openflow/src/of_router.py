@@ -74,12 +74,11 @@ class Router (object):
     self.routing_table['10.0.2.0/24'] = {'gateway_ip': '10.0.2.1', 'port': 2}
     self.routing_table['10.0.3.0/24'] = {'gateway_ip': '10.0.3.1', 'port': 3}
 
-    #
+    # Gateway IP to switch port
     self.ip2port_dict = {}
     self.ip2port_dict['10.0.1.1'] = 1
     self.ip2port_dict['10.0.2.1'] = 2
     self.ip2port_dict['10.0.3.1'] = 3
-
 
     # Message queue (while the router waits for an ARP reply)
     self.msg_queue = {}
@@ -106,7 +105,6 @@ class Router (object):
     """
     Handles ARP frame.
     """
-
     # Read ARP info.
     arp_body = packet.payload
     hwdst = arp_body.hwdst
@@ -131,30 +129,7 @@ class Router (object):
         if IPAddress(protodst) in IPNetwork(subnet):
           myhwaddr = self.arp_cache[self.routing_table[subnet]['gateway_ip']]
           break;
-      """
-      # Install new flow
-      log.debug("Installing flow...")
-      log.debug("Flow added: MATCH: set_nw_dst : %s" % IPAddr(subnet[:-3]))
-      log.debug("Flow added: ACTION: set_src : %s" % myhwaddr)
-      log.debug("Flow added: ACTION: set_dst : %s" % hwsrc)
-
-      msg = of.ofp_flow_mod()
-      ## Set fields to match received packet
-      msg.match.dl_type = ethernet.IP_TYPE
-      msg.match.set_nw_dst(IPAddr(subnet[:-3]), 24)
       
-      #< Set other fields of flow_mod (timeouts? buffer_id?) >
-      # msg.idle_timeout = 60
-      # msg.hard_timeout = 600
-
-      #< Add an output action, and send -- similar to resend_packet() >
-      msg.actions.append(of.ofp_action_dl_addr.set_src(myhwaddr))
-      msg.actions.append(of.ofp_action_dl_addr.set_dst(hwsrc))
-      msg.actions.append(of.ofp_action_output(port=packet_in.in_port))
-
-      self.connection.send(msg)
-      log.debug("New flow configured.")
-      """
     if opcode == arp.REQUEST:
       log.debug("Handling ARP REQUEST frame:")
       log.debug(arp_body._to_str())
@@ -200,7 +175,6 @@ class Router (object):
     """
     Replys ICMP packet.
     """
-
     ip_packet = packet.payload
     icmp_body = ip_packet.payload
     # log.debug()
@@ -231,12 +205,14 @@ class Router (object):
 
   def _handle_IPv4 (self, packet, packet_in):
     """
-    Handles IPv4 frame.
+    Handles IPv4 diagram.
     """
 
     ip_packet = packet.payload # This is the packet payload.
 
+    srcip = ip_packet.srcip
     dstip = ip_packet.dstip
+    srcip = str(srcip)
     dstip = str(dstip)
     is_routable = False
 
@@ -244,7 +220,7 @@ class Router (object):
       if IPAddress(dstip) in IPNetwork(subnet):
         is_routable = True
         dstsubnet = subnet
-        log.debug("IP frame routable to subnet %s" % dstsubnet)
+        log.debug("IP diagram routable to subnet %s" % dstsubnet)
         break
 
     if is_routable:
@@ -252,10 +228,10 @@ class Router (object):
         if ip_packet.protocol == ipv4.ICMP_PROTOCOL:
           self._reply_ICMP(packet, packet_in)
         else:
-          log.warning("I am not supposed to reply to any IP frames. Dropping.")
+          log.warning("I am not supposed to reply to any IP diagrams. Dropping.")
       else:
         out_port = self.ip2port_dict[self.routing_table[dstsubnet]['gateway_ip']]
-        log.debug("Trying to forward IP frame to subnet %s at port %d." % (dstsubnet, out_port))
+        log.debug("Trying to forward IP diagram to subnet %s at port %d." % (dstsubnet, out_port))
         if dstip not in self.arp_cache.keys():
           self.msg_queue[dstip] = {'dstsubnet': dstsubnet, 'ip_packet': ip_packet}
           log.debug("The owner of %s unknown. Flooding ARP request to port #%d." % (dstip, out_port))
@@ -280,7 +256,7 @@ class Router (object):
           fwd.src = EthAddr(self.arp_cache[self.routing_table[dstsubnet]['gateway_ip']])
           fwd.dst = EthAddr(self.arp_cache[dstip])
           self.resend_packet(fwd, out_port)
-          log.debug("IP frame forwarded to %s." % fwd.dst)
+          log.debug("IP diagram forwarded to %s." % fwd.dst)
 
           # Install new flow
           log.debug("Installing flow...")
@@ -310,6 +286,11 @@ class Router (object):
     else:
       log.debug("Destination %s is unreachable. Replying with ICMP Unreachable." % dstip)
       
+      for subnet in self.routing_table:
+        if IPAddress(srcip) in IPNetwork(subnet):
+          srcsubnet = subnet
+          break
+
       icmp_reply = icmp()
       icmp_reply.type = TYPE_DEST_UNREACH
       icmp_reply.code = CODE_UNREACH_NET
@@ -317,7 +298,7 @@ class Router (object):
 
       ip_reply = ipv4()
       ip_reply.protocol = ipv4.ICMP_PROTOCOL
-      ip_reply.srcip = ip_packet.dstip
+      ip_reply.srcip = IPAddr(self.routing_table[srcsubnet]['gateway_ip'])
       ip_reply.dstip = ip_packet.srcip
       ip_reply.payload = icmp_reply
 
@@ -343,7 +324,7 @@ class Router (object):
       log.debug("ARP frame received from port #%d" % packet_in.in_port)
       self._handle_ARP(packet, packet_in)
     elif packet.type == ethernet.IP_TYPE:
-      log.debug("IPv4 frame received from port #%d" % packet_in.in_port)
+      log.debug("IPv4 diagram received from port #%d" % packet_in.in_port)
       self._handle_IPv4(packet, packet_in)
     else:
       log.warning("Unsupported frame received from port #%d. Dropping." % packet_in.in_port)
@@ -353,7 +334,6 @@ class Router (object):
     """
     Handles packet in messages from the switch.
     """
-
     packet = event.parsed # This is the parsed packet data.
     if not packet.parsed:
       log.warning("Ignoring incomplete packet")
