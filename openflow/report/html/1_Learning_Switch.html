@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>1_Learning_Switch.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="openflow-tutorial-create-a-learning-switch">OpenFlow Tutorial: Create a Learning Switch</h1>
+<p>Copyright (c) 2020 Minaduki Shigure.<br>
+南京大学 电子科学与工程学院 吴康正 171180571</p>
+<h2 id="%E5%AE%9E%E9%AA%8C%E7%8E%AF%E5%A2%83">实验环境</h2>
+<p>macOS &quot;Catalina&quot; 10.15.4<br>
+VMware Funsion Pro Version 11.5.3 (15870345)<br>
+Ubuntu 14.04.1 trusty w/ x86_64 Linux 4.2.0-27-generic<br>
+mininet 2.2.2</p>
+<h2 id="%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F">实现方式</h2>
+<p>基于现有的POX代码加以修改，实现一个控制器，可以控制多个交换机实现自学习的转发。</p>
+<h2 id="%E5%AE%9E%E9%AA%8C%E8%BF%87%E7%A8%8B">实验过程</h2>
+<h3 id="%E8%8A%82%E7%82%B9%E4%BD%9C%E4%B8%BA%E9%9B%86%E7%BA%BF%E5%99%A8%E6%8E%A5%E5%85%A5">节点作为集线器接入</h3>
+<p>首先，在不对POX代码进行任何修改的情况下，使用如下命令直接运行POX程序：</p>
+<pre class="hljs"><code><div>$ ./pox.py log.level --DEBUG misc.of_tutorial
+</div></code></pre>
+<p>程序输出如下：</p>
+<pre class="hljs"><code><div>POX 0.2.0 (carp) / Copyright 2011-2013 James McCauley, et al.
+DEBUG:core:POX 0.2.0 (carp) going up...
+DEBUG:core:Running on CPython (2.7.6/Oct 26 2016 20:30:19)
+DEBUG:core:Platform is Linux-4.2.0-27-generic-x86_64-with-Ubuntu-14.04-trusty
+INFO:core:POX 0.2.0 (carp) is up.
+DEBUG:openflow.of_01:Listening on 0.0.0.0:6633
+</div></code></pre>
+<p>可以看到，POX控制器正在监听6633端口的通信，等待交换机节点连接。</p>
+<p>然后，运行mininet，创建一个有3个主机连接到同一个交换机节点的拓扑：</p>
+<pre class="hljs"><code><div>$ sudo mn --topo single,3 --mac --switch ovsk --controller remote
+</div></code></pre>
+<p>mininet的部分输出如下：</p>
+<pre class="hljs"><code><div>*** Adding controller
+Unable to contact the remote controller at 127.0.0.1:6653
+Connecting to remote controller at 127.0.0.1:6633
+</div></code></pre>
+<p>这证明mininet中的节点已经连接到了使用POX程序创建的控制器上，同时在POX程序的输出中也可以看到有一个新的节点连入：</p>
+<pre class="hljs"><code><div>INFO:openflow.of_01:[00-00-00-00-00-01 2] connected
+DEBUG:misc.of_tutorial:Controlling [00-00-00-00-00-01 2]
+</div></code></pre>
+<p>这样就完成了整个网络拓扑的配置，根据POX文件中的内容，交换机节点此时表现为集线器，也就是说控制器会指挥节点将收到的包泛洪到节点其他的所有接口。<br>
+以上的配置命令和输出除非有所变化，否则在后续实验中将不再重复。</p>
+<p>在mininet中，启动各个节点的终端，在h2和h3节点中，运行tcpdump命令监控输入的封包，在h1节点中，使用ping命令发送ICMP封包给h2节点：</p>
+<pre class="hljs"><code><div>h2 # tcpdump -XX -n -i h2-eth0
+h3 # tcpdump -XX -n -i h3-eth0
+h1 # ping 10.0.0.2
+</div></code></pre>
+<p>对于h1节点的反馈，可以看见h1节点与h2节点之间可以ping通，平均RTT约为41ms。<br>
+<img src="./pic/1-1.png" alt="h1 @ h1 ping h2 w/ s1 as hub"></p>
+<p>对于h2、h3节点的反馈，可以看见两个节点收到了完全一样的封包，包括ARP请求、h1发送的ICMP包和h2回复的ICMP包。<br>
+<img src="./pic/1-2.png" alt="h2 &amp; h3 @ h1 ping h2 w/ s1 as hub"></p>
+<p>接下来，尝试使用h1节点ping一个不存在的节点<code>10.0.0.5</code>，结果如下：</p>
+<p>h1节点无法连通目标节点。<br>
+<img src="./pic/1-3.png" alt="h1 @ h1 ping Unknown w/ s1 as hub"></p>
+<p>h2、h3节点收到了h1节点发出的ARP请求，但是由于没有回应，因此没有后续的ICMP包发出，也自然没有捕获。<br>
+<img src="./pic/1-4.png" alt="h2 &amp; h3 @ h1 ping Unknown w/ s1 as hub"></p>
+<p>另外，还可以在mininet终端中直接输入pingall命令检测所有节点之间的连通性，由于与单独ping结果一样，因此不另行展示。</p>
+<p>使用iperf命令可以测试节点之间的网络性能，在mininet终端内输入iperf，mininet会测试在h1节点和h3节点之间的网络性能，测试结果如下：</p>
+<pre class="hljs"><code><div>*** Iperf: testing TCP bandwidth between h1 and h3 
+*** Results: ['12.3 Mbits/sec', '14.7 Mbits/sec']
+</div></code></pre>
+<p>tcpdump的结果与ping相同，h2与h3都收到了完全相同的封包。</p>
+<p>按照ovs-ofctl的输出显示，节点之间的链路应至少为10Gbps的链路，然而iperf测试得到的网络连接速度很缓慢，同时在POX的日志中提示队列中排队的封包过多，推测应该是由于每个封包都会发送给控制器，然后再由控制器下令进行泛洪的原因导致的，这也能够解释在ping的时候RTT为什么一直反常地较高。</p>
+<p><strong>另外需要指出的一点是，tcpdump本身对网络性能有负面影响，如果tcpdump在运行则iperf测试的结果会偏低，关闭tcpdump后，集线器模式的性能测试结果为['19.9 Mbits/sec', '23.0 Mbits/sec']，略强于tcpdump运行时的性能，而这个性能差距在交换机模式下更加明显。</strong></p>
+<h3 id="%E8%8A%82%E7%82%B9%E4%BD%9C%E4%B8%BA%E4%BA%A4%E6%8D%A2%E6%9C%BA%E6%8E%A5%E5%85%A5">节点作为交换机接入</h3>
+<p>修改文件<code>of_tutorial.py</code>，在Tutorial类中加入函数act_like_switch，内容如下：</p>
+<pre class="hljs"><code><div><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">act_like_switch</span> <span class="hljs-params">(self, packet, packet_in)</span>:</span>
+    <span class="hljs-string">"""
+    Implement switch-like behavior.
+    """</span>
+
+    <span class="hljs-comment"># Here's some psuedocode to start you off implementing a learning</span>
+    <span class="hljs-comment"># switch.  You'll need to rewrite it as real Python code.</span>
+
+    <span class="hljs-comment"># Learn the port for the source MAC</span>
+    self.mac_to_port[packet.src] = packet_in.in_port
+    log.debug(<span class="hljs-string">"Updated MAC for port %d : %s"</span> % (packet_in.in_port, packet.src))
+
+    <span class="hljs-keyword">if</span> packet.dst <span class="hljs-keyword">in</span> self.mac_to_port:
+        <span class="hljs-comment"># Send packet out the associated port</span>
+        self.resend_packet(packet_in, self.mac_to_port[packet.dst])
+        log.debug(<span class="hljs-string">"MAC matched, sending to port %d"</span> % self.mac_to_port[packet.dst])
+
+        <span class="hljs-comment"># Once you have the above working, try pushing a flow entry</span>
+        <span class="hljs-comment"># instead of resending the packet (comment out the above and</span>
+        <span class="hljs-comment"># uncomment and complete the below.)</span>
+
+        log.debug(<span class="hljs-string">"Installing flow..."</span>)
+        <span class="hljs-comment"># Maybe the log statement should have source/destination/port?</span>
+        log.debug(<span class="hljs-string">"Flow added: MATCH: in_port :  %s"</span> % packet_in.in_port)
+        log.debug(<span class="hljs-string">"Flow added: MATCH: MAC_src :  %s"</span> % packet.src)
+        log.debug(<span class="hljs-string">"Flow added: MATCH: MAC_dst :  %s"</span> % packet.dst)
+        log.debug(<span class="hljs-string">"Flow added: ACTION: out_port :  %s"</span> % self.mac_to_port[packet.dst])
+
+        msg = of.ofp_flow_mod()
+        <span class="hljs-comment">#</span>
+        <span class="hljs-comment">## Set fields to match received packet</span>
+        msg.match = of.ofp_match.from_packet(packet)
+      
+        <span class="hljs-comment">#&lt; Set other fields of flow_mod (timeouts? buffer_id?) &gt;</span>
+        msg.idle_timeout = <span class="hljs-number">60</span>
+        msg.hard_timeout = <span class="hljs-number">600</span>
+        <span class="hljs-string">""" It seems the buffer is not avaliable? Buffer ID will not be sent.
+        if packet_in.buffer_id != -1 and packet_in.buffer_id is not None:
+            # We got a buffer ID from the switch; use that
+            msg.buffer_id = packet_in.buffer_id
+            log.debug("buffer_id : %s" % packet_in.buffer_id)
+        """</span>
+
+        <span class="hljs-comment">#&lt; Add an output action, and send -- similar to resend_packet() &gt;</span>
+        msg.actions.append(of.ofp_action_output(port=self.mac_to_port[packet.dst]))
+
+        self.connection.send(msg)
+        log.debug(<span class="hljs-string">"New flow configured."</span>)
+
+    <span class="hljs-keyword">else</span>:
+        <span class="hljs-comment"># Flood the packet out everything but the input port</span>
+        <span class="hljs-comment"># This part looks familiar, right?</span>
+        self.resend_packet(packet_in, of.OFPP_ALL)
+        log.debug(<span class="hljs-string">"Port for MAC %s unknown. Flooding."</span> % packet.dst)
+</div></code></pre>
+<p>函数的具体实现思路是：当一个封包被发送到控制器时，控制器首先将封包来源的端口和MAC地址记录到字典中，然后判断封包目的地的MAC地址是否在字典中，如果不在，则泛洪，否则会命令交换机将封包送到对应的端口，同时下发一条新的流到交换机，流的内容即为在对应的输入端口、源MAC和目标MAC的情况下，使用哪个端口发送的指令，这样在流过期之前，交换机就可以不依赖控制器完成转发。</p>
+<p>然后修改函数_handle_PacketIn中的内容，将act_like_hub修改为act_like_switch，这样控制器就会调用act_like_switch函数的内容，实现交换机的功能配置。</p>
+<p>启动POX控制器和mininet，首先还是使用h1节点ping节点h2，控制器日志如下：</p>
+<pre class="hljs"><code><div>DEBUG:misc.of_tutorial:Updated MAC for port 1 : 00:00:00:00:00:01
+DEBUG:misc.of_tutorial:Port for MAC ff:ff:ff:ff:ff:ff unknown. Flooding.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : 00:00:00:00:00:02
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  00:00:00:00:00:02
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  00:00:00:00:00:01
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : 00:00:00:00:00:01
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  00:00:00:00:00:01
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  00:00:00:00:00:02
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+</div></code></pre>
+<p>控制器根据节点上交的封包信息自动“学习”了端口对应的MAC地址，同时也根据学习的MAC地址完成了流的下发，这样对于后续的同样封包，交换机节点就可以自行处理。</p>
+<p>在h1节点的终端处可见，第一个封包的RTT很长，这是因为交换机中没有配置好的流，因此需要把包发送给控制器进行判断，而后续封包的RTT急剧下降，就是因为控制器下发了流之后，交换机不再需要与控制器通讯就可以完成转发，因此转发的时间降低了。<br>
+<img src="./pic/1-5.png" alt="h1 @ h1 ping h2 w/ s1 as switch"></p>
+<p>同时在h2与h3节点中也可以看到，h2节点收到了所有有关的封包，而h3节点只收到了一开始泛洪的一个ARP包。<br>
+<img src="./pic/1-6.png" alt="h2 &amp; h3 @ h1 ping h2 w/ s1 as switch"></p>
+<p>使用iperf命令测试网络性能，性能相比集线器模式下有巨大的提升，同时tcpdump也显示，所有的数据均被发送到了h3节点，h2节点仅收到了一些ARP包，这里不再赘述。</p>
+<pre class="hljs"><code><div>*** Iperf: testing TCP bandwidth between h1 and h3 
+*** Results: ['10.5 Gbits/sec', '10.5 Gbits/sec']
+</div></code></pre>
+<p>之前提到，tcpdump会影响网络性能，关闭tcpdump后，iperf测试结果有所提升：</p>
+<pre class="hljs"><code><div>*** Iperf: testing TCP bandwidth between h1 and h3 
+*** Results: ['29.1 Gbits/sec', '29.1 Gbits/sec']
+</div></code></pre>
+<h3 id="%E5%A4%9A%E8%8A%82%E7%82%B9%E6%94%AF%E6%8C%81">多节点支持</h3>
+<p>使用mininet建立一个有两个交换机和两个终端的拓扑。</p>
+<pre class="hljs"><code><div>$ sudo mn --topo linear --switch ovsk --controller remote
+</div></code></pre>
+<p>由于POX会为每个接入的交换机分别创建一个控制器实例，因此POX的代码不需要修改，可以在POX日志中看见有两个交换机接入：</p>
+<pre class="hljs"><code><div>INFO:openflow.of_01:[00-00-00-00-00-02 2] connected
+DEBUG:misc.of_tutorial:Controlling [00-00-00-00-00-02 2]
+INFO:openflow.of_01:[00-00-00-00-00-01 3] connected
+DEBUG:misc.of_tutorial:Controlling [00-00-00-00-00-01 3]
+</div></code></pre>
+<p>使用mininet终端的<code>pingall</code>命令测试，两台主机之间网络畅通，同时也可以看见POX日志中进行了学习和流的下发。不过POX日志中没有对不同的交换机进行区分，因此看起来比较混乱。</p>
+<pre class="hljs"><code><div>DEBUG:misc.of_tutorial:Updated MAC for port 1 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Port for MAC ff:ff:ff:ff:ff:ff unknown. Flooding.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Port for MAC ff:ff:ff:ff:ff:ff unknown. Flooding.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : 5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 1 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:MAC matched, sending to port 2
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  1
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  2
+DEBUG:misc.of_tutorial:New flow configured.
+DEBUG:misc.of_tutorial:Updated MAC for port 2 : be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:MAC matched, sending to port 1
+DEBUG:misc.of_tutorial:Installing flow...
+DEBUG:misc.of_tutorial:Flow added: MATCH: in_port :  2
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_src :  be:05:6d:09:e4:1a
+DEBUG:misc.of_tutorial:Flow added: MATCH: MAC_dst :  5e:fa:45:b1:5e:f0
+DEBUG:misc.of_tutorial:Flow added: ACTION: out_port :  1
+DEBUG:misc.of_tutorial:New flow configured.
+</div></code></pre>
+<p>最后，使用iperf测试一下网络性能：</p>
+<pre class="hljs"><code><div>*** Iperf: testing TCP bandwidth between h1 and h2 
+*** Results: ['27.4 Gbits/sec', '27.4 Gbits/sec']
+</div></code></pre>
+<p>网络性能符合预期。</p>
+<h2 id="%E5%B0%8F%E7%BB%93">小结</h2>
+<p>通过此次实验，对OpenFlow的基本概念有了详细的理解，同时对自学习交换机的工作原理有了直观的认识，同时也初步掌握了一些工具比如mininet和X11转发的使用方法。</p>
+
+</body>
+</html>
