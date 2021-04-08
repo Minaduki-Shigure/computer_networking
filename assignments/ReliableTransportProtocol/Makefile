@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -g
 
-all: prog2 prog2plus
+all: prog2
 
 prog2: prog2.c
 	$(CC) $(CFLAGS) -o $@ $^
