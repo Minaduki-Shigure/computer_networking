@@ -278,7 +278,8 @@ void receiver_input(int AorB, receiver_class* receiver, struct pkt packet)
     if (packet.seqnum < receiver->expecting_seq)
     {
         hightlight_printf(highlight_str);
-        printf("Duplicated SEQ = %d received. Dropped.\n", packet.seqnum);
+        printf("Duplicated SEQ = %d received. Sending last ACK = %d.\n", packet.seqnum, receiver->ack_buffer.acknum);
+        tolayer3(AorB, receiver->ack_buffer);
         return;
     }
     if (packet.seqnum > receiver->expecting_seq)
